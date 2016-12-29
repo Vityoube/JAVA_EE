@@ -100,10 +100,14 @@ public class UserService implements UserDetailsService{
     }
 
     public String login(@NotNull String username, @NotNull String password){
-        User user=(User)loadUserByUsername(username);
-        if (user!=null && user.getPassword().equals(new BCryptPasswordEncoder().encode(password)))
-            return Statuses.SUCCESS.name();
-        else
+        try {
+            User user = (User) loadUserByUsername(username);
+            if (user != null && new BCryptPasswordEncoder().matches(password, user.getPassword()))
+                return Statuses.SUCCESS.name();
+            else
+                return Statuses.ERROR.name();
+        } catch (UsernameNotFoundException e){
             return Statuses.ERROR.name();
+        }
     }
 }
