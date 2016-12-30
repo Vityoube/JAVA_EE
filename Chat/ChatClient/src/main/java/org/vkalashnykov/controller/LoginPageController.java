@@ -92,6 +92,7 @@ public class LoginPageController implements Initializable {
                         root=FXMLLoader.load(getClass().getResource("/fxml/start.fxml"));
                         Scene scene=new Scene(root);
                         stage= (Stage)((Node)event.getSource()).getScene().getWindow();
+                        stage.setTitle("Super Chat");
                         stage.setScene(scene);
                         stage.show();
                     }

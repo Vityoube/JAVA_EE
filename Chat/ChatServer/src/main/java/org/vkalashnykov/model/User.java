@@ -45,6 +45,7 @@ public class User implements UserDetails{
     private String lastName;
     @Min(value = 1)
     private int age;
+    private Date birthDate;
     @NotEmpty
     private Date registrationDate;
     @NotEmpty

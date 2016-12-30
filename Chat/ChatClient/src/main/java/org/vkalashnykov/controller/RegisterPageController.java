@@ -11,13 +11,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.apache.xmlrpc.XmlRpcException;
 import org.vkalashnykov.configuration.ApplicationStatuses;
 import org.vkalashnykov.configuration.ErrorCodes;
+import org.vkalashnykov.configuration.ServerStatuses;
+import org.vkalashnykov.configuration.XmlRpcConfiguration;
 
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -76,18 +81,39 @@ public class RegisterPageController implements Initializable {
             String lastName = lastNameInput.getText();
             SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
             try {
-                Date birthdate = format.parse(birthDateIput.getText());
-                registerStatus.setTextFill(Color.GREEN);
-                registerStatus.setText(ApplicationStatuses.REGISTER_SUCCESS.getStatusDescription());
-                usernameError.setText("");
-                dateError.setText("");
-                passwordError.setText("");
-                passwordConfirmError.setText("");
+
+                List<Object> registrationParams = new ArrayList<Object>();
+                registrationParams.add(username);
+                registrationParams.add(password);
+                registrationParams.add(name);
+                registrationParams.add(lastName);
+                Date birthdate=null;
+                if (!"".equals(birthDateIput.getText())) {
+                    birthdate = format.parse(birthDateIput.getText());
+
+                } else {
+                    birthdate=new Date();
+                }
+                registrationParams.add(birthdate);
+                String registrationResult=(String) XmlRpcConfiguration.getXmlRpcServer().execute("UserService.createUser",registrationParams);
+                if (ServerStatuses.SUCCESS.name().equals(registrationResult)){
+                    usernameError.setText("");
+                    dateError.setText("");
+                    passwordError.setText("");
+                    passwordConfirmError.setText("");
+                    registerStatus.setTextFill(Color.GREEN);
+                    registerStatus.setText(ApplicationStatuses.REGISTER_SUCCESS.getStatusDescription());
+                }
+
             } catch (ParseException e) {
                 e.printStackTrace();
                 registerStatus.setTextFill(Color.RED);
                 registerStatus.setText(ApplicationStatuses.REGISTER_ERROR.getStatusDescription());
                 dateError.setText(ErrorCodes.WRONG_DATE_FORMAT.getErrorDescription());
+            } catch (XmlRpcException e) {
+                e.printStackTrace();
+                registerStatus.setTextFill(Color.RED);
+                registerStatus.setText(ApplicationStatuses.REGISTER_ERROR.getStatusDescription()+ ". Error: "+e.code+" "+e.getMessage());
             }
         } else {
             registerStatus.setTextFill(Color.RED);

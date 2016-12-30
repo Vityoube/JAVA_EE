@@ -1,6 +1,7 @@
 package org.vkalashnykov.service;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.xmlrpc.XmlRpcException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,7 +9,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.vkalashnykov.configuration.ServerErrors;
 import org.vkalashnykov.configuration.Statuses;
+import org.vkalashnykov.model.OnlineStatuses;
 import org.vkalashnykov.model.RegistrationStatuses;
 import org.vkalashnykov.model.User;
 import org.vkalashnykov.model.UserRoles;
@@ -17,6 +20,10 @@ import org.vkalashnykov.persistence.UserDAO;
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import javax.xml.ws.WebServiceException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -25,10 +32,9 @@ public class UserService implements UserDetailsService{
     @Autowired
     private UserDAO userDAO;
 
+    private User currentUser;
 
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    private String currentUserUsername;
+    private Date currentTime;
 
     private Date unblockTime;
 
@@ -45,11 +51,6 @@ public class UserService implements UserDetailsService{
                     .registrationDate(registrationDate)
                     .build());
         }
-    }
-
-    @Autowired
-    public BCryptPasswordEncoder getbCryptPasswordEncoder() {
-        return bCryptPasswordEncoder;
     }
 
     //    @Cacheable("messages")
@@ -79,17 +80,39 @@ public class UserService implements UserDetailsService{
         unblockTime = new Date(user.getLastBanTime().getTime() + banTime);
     }
 
-    public void createUser(String username, String password) {
+    public String createUser(@NotNull String username, @NotNull String password, String name, String lastName, Date birthDate) throws XmlRpcException {
         try {
-            userDAO.save(User.builder()
-                    .username(username)
-                    .password(new BCryptPasswordEncoder().encode(password))
-                    .registrationStatus(RegistrationStatuses.PENDING.name())
-                    .authorities(ImmutableList.of(UserRoles.USER))
-                    .registrationDate(new Date())
-                    .build());
+            int userAge=0;
+            if (birthDate!=null){
+                currentTime = new Date();
+                LocalDate currentTimeLocal = currentTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate userBirthDateLocal = currentTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                userAge= (int)ChronoUnit.YEARS.between(userBirthDateLocal,currentTimeLocal);
+                if (!userDAO.findByUsername(username).isPresent()){
+            }
+                userDAO.save(User.builder()
+                        .username(username)
+                        .password(new BCryptPasswordEncoder().encode(password))
+                        .registrationStatus(RegistrationStatuses.PENDING.name())
+                        .authorities(ImmutableList.of(UserRoles.USER))
+                        .registrationDate(currentTime)
+                        .age(userAge)
+                        .onlineStatus(OnlineStatuses.NOT_ACTIVE.name())
+                        .birthDate(birthDate)
+                        .firstName(name)
+                        .lastName(lastName)
+                        .build());
+                User user=userDAO.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("user "+username+ " was not found"));
+                user.setRegistrationStatus(RegistrationStatuses.REGISTERED.name());
+                userDAO.save(user);
+                return Statuses.SUCCESS.name();
+            } else {
+                throw new XmlRpcException(ServerErrors.USER_EXISTS.getUserDescription());
+            }
+
+
         } catch (Exception e){
-            throw new WebServiceException("Couldn't create user",e);
+            throw new XmlRpcException(e.getMessage());
         }
 
     }
@@ -99,15 +122,35 @@ public class UserService implements UserDetailsService{
         return userDAO.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("user "+username+ " was not found"));  // Here the userDAO is null
     }
 
+
+
     public String login(@NotNull String username, @NotNull String password){
         try {
             User user = (User) loadUserByUsername(username);
-            if (user != null && new BCryptPasswordEncoder().matches(password, user.getPassword()))
+            if (user != null && new BCryptPasswordEncoder().matches(password, user.getPassword())) {
+                user.setOnlineStatus(OnlineStatuses.ONLINE.name());
+                userDAO.save(user);
+                setCurrentUser(user);
                 return Statuses.SUCCESS.name();
-            else
+            } else
                 return Statuses.ERROR.name();
         } catch (UsernameNotFoundException e){
             return Statuses.ERROR.name();
         }
+    }
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
+    }
+
+    public String getCurrentUserUserName(){
+        return currentUser.getUsername();
+    }
+
+    public String getCurrentUserOnlineStatus(){
+        return currentUser.getOnlineStatus();
     }
 }

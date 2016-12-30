@@ -16,6 +16,7 @@ public class XmlRpcConfiguration {
 
     public static void configureXmlRpcClient(){
         final XmlRpcClientConfigImpl config=new XmlRpcClientConfigImpl();
+        config.setEnabledForExtensions(true);
         try {
             System.out.println("Trying connect to server "+serverUrl);
             config.setServerURL(new URL(serverUrl));

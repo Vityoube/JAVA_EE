@@ -1,6 +1,7 @@
 package org.vkalashnykov.controller;
 
 import javafx.fxml.Initializable;
+import org.vkalashnykov.configuration.XmlRpcConfiguration;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -12,5 +13,10 @@ public class ChatMainController implements Initializable{
 
     public void initialize(URL location, ResourceBundle resources) {
 
+    }
+
+
+    public void setCurrentUsername(){
+        String status=(String)XmlRpcConfiguration.getXmlRpcServer().execute("UserService.getCurrentUserUserName",);
     }
 }

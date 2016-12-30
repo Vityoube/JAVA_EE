@@ -35,12 +35,12 @@
                         </Tab>
                     </tabs>
                   </TabPane>
-                  <Label alignment="CENTER" layoutX="14.0" layoutY="10.0" prefHeight="27.0" prefWidth="184.0" text="Username">
+                  <Label alignment="CENTER" layoutX="14.0" layoutY="10.0" prefHeight="27.0" prefWidth="184.0" text="Username" fx:id="currentUsername">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <Label alignment="CENTER" contentDisplay="TOP" layoutX="65.0" layoutY="34.0" prefHeight="16.0" prefWidth="77.0" text="Status" />
+                  <Label alignment="CENTER" contentDisplay="TOP" layoutX="65.0" layoutY="34.0" prefHeight="16.0" prefWidth="77.0" text="Status" fx:id="currentStatus" />
                   <TextField layoutX="-4.0" layoutY="56.0" prefHeight="26.0" prefWidth="220.0" promptText="search contact..." />
                   <Hyperlink layoutX="87.0" layoutY="82.0" text="Search" />
                </children>
