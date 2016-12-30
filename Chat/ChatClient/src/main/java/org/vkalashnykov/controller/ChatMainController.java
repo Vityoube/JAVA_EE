@@ -14,9 +14,4 @@ public class ChatMainController implements Initializable{
     public void initialize(URL location, ResourceBundle resources) {
 
     }
-
-
-    public void setCurrentUsername(){
-        String status=(String)XmlRpcConfiguration.getXmlRpcServer().execute("UserService.getCurrentUserUserName",);
-    }
 }

@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -31,6 +32,8 @@ import java.util.ResourceBundle;
 public class RegisterPageController implements Initializable {
 
     public Label registerStatus;
+
+    public DatePicker birthdatePicker;
     @FXML
     private TextField usernameInput;
 
@@ -46,8 +49,7 @@ public class RegisterPageController implements Initializable {
     @FXML
     private TextField lastNameInput;
 
-    @FXML
-    private TextField birthDateIput;
+
 
     @FXML
     private Label dateError;
@@ -88,8 +90,9 @@ public class RegisterPageController implements Initializable {
                 registrationParams.add(name);
                 registrationParams.add(lastName);
                 Date birthdate=null;
-                if (!"".equals(birthDateIput.getText())) {
-                    birthdate = format.parse(birthDateIput.getText());
+                TextField birthDateInput=birthdatePicker.getEditor();
+                if (!"".equals(birthDateInput.getText())) {
+                    birthdate = format.parse(birthDateInput.getText());
 
                 } else {
                     birthdate=new Date();
