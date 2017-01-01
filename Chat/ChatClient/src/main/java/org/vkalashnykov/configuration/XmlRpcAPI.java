@@ -9,7 +9,7 @@ import java.net.URL;
 /**
  * Created by vkalashnykov on 28.12.16.
  */
-public class XmlRpcConfiguration {
+public class XmlRpcAPI {
     private static final String serverUrl="http://localhost:8090/xmlrpc";
 
     private static final XmlRpcClient xmlRpcClient=new XmlRpcClient();

@@ -34,17 +34,12 @@ public class User implements UserDetails{
     private ObjectId id;
 
     @Length(min = 6)
-    @Indexed(unique = true)
     private String username;
     @Length(min=6)
     @NotNull
     private String password;
-    @Transient
-    private String passwordConfirm;
     private String firstName;
     private String lastName;
-    @Min(value = 1)
-    private int age;
     private Date birthDate;
     @NotEmpty
     private Date registrationDate;
@@ -56,7 +51,7 @@ public class User implements UserDetails{
     @NotEmpty
     private String registrationStatus;
     private Date closeDate;
-    private Date lastBanTime;
+    private Date blockDate;
     private String onlineStatus;
 
 
@@ -89,5 +84,26 @@ public class User implements UserDetails{
         return !RegistrationStatuses.CLOSED.equals(registrationStatus) ? true : false;
     }
 
+    public boolean isAdmin(){
+        if (authorities.contains(UserRoles.ADMIN))
+                return true;
+        return false;
+    }
 
+    public boolean isVIP(){
+        if (authorities.contains(UserRoles.VIP))
+            return true;
+        return false;
+    }
+
+    public boolean isModerator(){
+        if (authorities.contains(UserRoles.MODERATOR))
+            return true;
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return username;
+    }
 }

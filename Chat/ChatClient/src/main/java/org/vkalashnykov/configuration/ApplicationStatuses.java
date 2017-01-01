@@ -5,7 +5,9 @@ package org.vkalashnykov.configuration;
  */
 public enum ApplicationStatuses {
     REGISTER_SUCCESS("Registered successfully"),
-    REGISTER_ERROR("Registration fault");
+    REGISTER_ERROR("Registration fault"),
+    CHANGE_SUCCESS("Data modification successfully "),
+    CHANGE_ERROR("Error modification data. ");
 
     private String statusDescription;
 

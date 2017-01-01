@@ -5,122 +5,122 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.SplitMenuButton?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<Accordion maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111">
-  <panes>
-    <TitledPane animated="false" text="Account Information">
-      <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <Label layoutX="58.0" layoutY="24.0" text="Username">
-                     <font>
-                        <Font size="18.0" />
-                     </font>
-                  </Label>
-                  <Hyperlink layoutX="58.0" layoutY="51.0" text="Change password..." />
-                  <Label layoutX="45.0" layoutY="175.0" text="Registration date: ">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <Label alignment="CENTER" contentDisplay="CENTER" layoutX="178.0" layoutY="175.0" prefHeight="20.0" prefWidth="146.0" text="registrationDate">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="79.0" layoutY="113.0" text="Status: ">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="49.0" layoutY="247.0" prefWidth="98.0" text="Last login date: ">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <Label alignment="CENTER" contentDisplay="CENTER" layoutX="178.0" layoutY="247.0" prefHeight="20.0" prefWidth="146.0" text="lastLoginDate">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="196.0" layoutY="28.0" text="registrationStatus">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <Hyperlink disable="true" layoutX="321.0" layoutY="113.0" text="Change status" />
-                  <Button layoutX="477.0" layoutY="25.0" mnemonicParsing="false" text="Close profile" />
-                  <Button disable="true" layoutX="373.0" layoutY="26.0" mnemonicParsing="false" text="Ban user" />
-                  <Label disable="true" layoutX="196.0" layoutY="64.0" prefHeight="20.0" prefWidth="112.0" text="Account blocked:">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <Label alignment="CENTER" contentDisplay="CENTER" disable="true" layoutX="321.0" layoutY="64.0" prefHeight="20.0" prefWidth="146.0" text="blockDate">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <SplitMenuButton layoutX="188.0" layoutY="110.0" mnemonicParsing="false" text="status">
-                    <items>
-                      <MenuItem mnemonicParsing="false" text="Action 1" />
-                      <MenuItem mnemonicParsing="false" text="Action 2" />
-                    </items>
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </SplitMenuButton>
-               </children></AnchorPane>
-      </content>
-    </TitledPane>
-    <TitledPane animated="false" text="Details">
-      <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <Label layoutX="58.0" layoutY="45.0" text="First name: ">
-                     <font>
-                        <Font size="16.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="58.0" layoutY="103.0" text="Last name: ">
-                     <font>
-                        <Font size="16.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="61.0" layoutY="162.0" text="Birth date: ">
-                     <font>
-                        <Font size="16.0" />
-                     </font>
-                  </Label>
-                  <Button layoutX="75.0" layoutY="245.0" mnemonicParsing="false" text="Edit">
-                     <font>
-                        <Font size="16.0" />
-                     </font>
-                  </Button>
-                  <Button disable="true" layoutX="174.0" layoutY="245.0" mnemonicParsing="false" text="Cancel">
-                     <font>
-                        <Font size="16.0" />
-                     </font>
-                  </Button>
-                  <TextField blendMode="COLOR_BURN" editable="false" layoutX="189.0" layoutY="43.0" prefHeight="30.0" prefWidth="295.0">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </TextField>
-                  <TextField blendMode="COLOR_BURN" editable="false" layoutX="189.0" layoutY="101.0" prefHeight="30.0" prefWidth="295.0">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </TextField>
-                  <DatePicker blendMode="COLOR_BURN" editable="false" layoutX="189.0" layoutY="162.0" prefHeight="25.0" prefWidth="204.0" />
-               </children></AnchorPane>
-      </content>
-    </TitledPane>
-  </panes>
-</Accordion>
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.vkalashnykov.controller.ProfileController">
+   <children>
+      <Accordion maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0">
+        <panes>
+          <TitledPane animated="false" onMouseClicked="#onMouseClicked" text="Account Information">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Label fx:id="profileUsername" layoutX="58.0" layoutY="24.0" text="Username">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <Hyperlink fx:id="passwordChange" layoutX="33.0" layoutY="51.0" onAction="#onChangePassword" text="Change password..." />
+                        <Label fx:id="lastActionLabel" layoutX="40.0" layoutY="176.0" text="Last Action Date: ">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="profileLastActionDate" alignment="CENTER" contentDisplay="CENTER" layoutX="189.0" layoutY="175.0" prefHeight="20.0" prefWidth="146.0" text="lastActionDate">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="79.0" layoutY="113.0" text="Status: ">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="lastLoginLabel" layoutX="46.0" layoutY="230.0" prefHeight="18.0" prefWidth="126.0" text="Last login date: ">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="profileLastLoginDate" alignment="CENTER" contentDisplay="CENTER" layoutX="189.0" layoutY="229.0" prefHeight="20.0" prefWidth="146.0" text="lastLoginDate">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="profileRegistrationStatus" layoutX="414.0" layoutY="176.0" text="registrationStatus">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Hyperlink fx:id="changeStatus" layoutX="441.0" layoutY="112.0" text="Change status" />
+                        <Button fx:id="closeButton" layoutX="438.0" layoutY="283.0" mnemonicParsing="false" onAction="#onCloseProfile" text="Close profile" />
+                        <Button fx:id="banButton" layoutX="299.0" layoutY="285.0" mnemonicParsing="false" text="Ban user" />
+                        <Label fx:id="profileUserStatus" layoutX="214.0" layoutY="113.0" prefHeight="18.0" prefWidth="145.0" text="userStatus">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="profileOnlineStatus" layoutX="477.0" layoutY="29.0" prefHeight="18.0" prefWidth="95.0" text="onlineStatus">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </TitledPane>
+          <TitledPane animated="false" text="Details">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="58.0" layoutY="45.0" text="First name: ">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="58.0" layoutY="103.0" text="Last name: ">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="61.0" layoutY="162.0" text="Birth date: ">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Label>
+                        <Button fx:id="editButton" defaultButton="true" layoutX="75.0" layoutY="245.0" mnemonicParsing="false" onAction="#onEdit" text="Edit">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="cancelButton" cancelButton="true" disable="true" layoutX="174.0" layoutY="245.0" mnemonicParsing="false" onAction="#onCancel" text="Cancel" visible="false">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Button>
+                        <TextField fx:id="profileFirstName" editable="false" layoutX="189.0" layoutY="43.0" prefHeight="30.0" prefWidth="295.0" promptText="firstName">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </TextField>
+                        <TextField fx:id="profileLastName" editable="false" layoutX="189.0" layoutY="101.0" prefHeight="30.0" prefWidth="295.0" promptText="lastName">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </TextField>
+                        <DatePicker fx:id="profileBirthDate" editable="false" layoutX="189.0" layoutY="162.0" prefHeight="25.0" prefWidth="204.0" promptText="birthDate" />
+                        <Label fx:id="status" alignment="CENTER" layoutX="27.0" layoutY="305.0" prefHeight="16.0" prefWidth="320.0" text="Status" textFill="#dd0c0c" visible="false" wrapText="true">
+                           <font>
+                              <Font size="12.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </TitledPane>
+        </panes>
+      </Accordion>
+   </children>
+</AnchorPane>

@@ -4,7 +4,7 @@ package org.vkalashnykov.model;
  * Created by vkalashnykov on 25.12.16.
  */
 public enum OnlineStatuses {
-    ONLINE("Online"), NOT_ACTIVE("Not active");
+    ONLINE("Online"), OFFLINE("Offline");
 
     private String statusDescription;
 

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.vkalashnykov.controller.ChannelController">
+   <children>
+      <Accordion maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0">
+        <panes>
+          <TitledPane animated="false" text="Channel description">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="71.0" layoutY="38.0" text="channelName" fx:id="channelName">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="72.0" layoutY="108.0" text="channelStatus" fx:id="channelStatus">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Label>
+                        <TextArea editable="false" layoutX="60.0" layoutY="166.0" prefHeight="59.0" prefWidth="503.0" wrapText="true" fx:id="channelDescription"/>
+                        <Label layoutX="72.0" layoutY="270.0" text="Users on channel:">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="299.0" layoutY="270.0" text="usersCount" fx:id="usersCount">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </TitledPane>
+          <TitledPane animated="false" text="Users">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" fx:id="usersPane"/>
+            </content>
+          </TitledPane>
+        </panes>
+      </Accordion>
+   </children>
+</AnchorPane>

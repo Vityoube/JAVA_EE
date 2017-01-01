@@ -10,20 +10,14 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.apache.xmlrpc.XmlRpcException;
-import org.vkalashnykov.configuration.ErrorCodes;
-import org.vkalashnykov.configuration.ServerStatuses;
-import org.vkalashnykov.configuration.XmlRpcConfiguration;
+import org.vkalashnykov.configuration.*;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class LoginPageController implements Initializable {
 
@@ -82,13 +76,26 @@ public class LoginPageController implements Initializable {
         String loginInput=login.getText();
         String passwordInput=password.getText();
         if (loginInput!= null && passwordInput!=null){
-            if ("xmlrpc".equals(configuration)){
+            if (FrameworkConfiguration.Frameworks.XMLRPC.getImplementation().equals(FrameworkConfiguration.getFrameworkImplementation())){
                 try {
                     List<String> params = new ArrayList<String>();
                     params.add(loginInput);
                     params.add(passwordInput);
-                    String result=( String) XmlRpcConfiguration.getXmlRpcServer().execute("UserService.login",params);
+                    String result=( String) XmlRpcAPI.getXmlRpcServer().execute("UserService.login",params);
                     if (ServerStatuses.SUCCESS.name().equals(result)){
+                        ChatClientCache.setCurrentUserUsername(loginInput);
+                        params.remove(passwordInput);
+                        Map<String, String> currentUserProfile=(Map) XmlRpcAPI.getXmlRpcServer().execute("UserService.profile",params);
+                        ChatClientCache.setCurrentUserProfile(currentUserProfile);
+                        ChatClientCache.setCurrentUserStatus(currentUserProfile.get("userStatus"));
+                        params=new ArrayList<String>();
+                        params.add(ChatClientCache.getCurrentUserStatus());
+                        List<Object> channels= Arrays.asList( (Object[]) XmlRpcAPI.getXmlRpcServer().execute("UserService.channelsByStatus",params));
+                        List<String> channelsList =new ArrayList<>();
+                        for (Object channel : channels){
+                            channelsList.add((String)channel);
+                        }
+                        ChatClientCache.setChannels(channelsList);
                         root=FXMLLoader.load(getClass().getResource("/fxml/start.fxml"));
                         Scene scene=new Scene(root);
                         stage= (Stage)((Node)event.getSource()).getScene().getWindow();
@@ -112,67 +119,29 @@ public class LoginPageController implements Initializable {
 
     @FXML
     public void closeAction(ActionEvent event) {
-        if (event.getSource()==close){
-            Platform.exit();
-        }
+        Platform.exit();
     }
 
     @FXML
     public void configureXmlRpc(ActionEvent event) {
         if (event.getSource()==xmlrpc){
-            configuration="xmlrpc";
+            FrameworkConfiguration.setFrameworkImplementation(FrameworkConfiguration.Frameworks.XMLRPC.getImplementation());
         }
     }
     @FXML
     public void configureBurlap(ActionEvent event) {
         if (event.getSource()==burlap){
-            configuration="burlap";
+            FrameworkConfiguration.setFrameworkImplementation(FrameworkConfiguration.Frameworks.BURLAP.getImplementation());
         }
     }
 
     @FXML
     public void configureHessian(ActionEvent event){
         if (event.getSource()==hessian){
-            configuration="hessian";
+            FrameworkConfiguration.setFrameworkImplementation(FrameworkConfiguration.Frameworks.HESSIAN.getImplementation());
         }
     }
 
-    @FXML
-    public void onEnterKey(KeyEvent keyEvent) throws IOException{
-        if (KeyCode.ENTER.equals(keyEvent.getCode())){
-            Stage stage;
-            Parent root;
-            String loginInput=login.getText();
-            String passwordInput=password.getText();
-            if (!"".equals(loginInput) && !"".equals(passwordInput)){
-                if ("xmlrpc".equals(configuration)){
-                    try {
-                        List<String> params = new ArrayList<String>();
-                        params.add(loginInput);
-                        params.add(passwordInput);
-                        String result=( String) XmlRpcConfiguration.getXmlRpcServer().execute("UserService.login",params);
-                        if (ServerStatuses.SUCCESS.name().equals(result)){
-                            root=FXMLLoader.load(getClass().getResource("/fxml/start.fxml"));
-                            Scene scene=new Scene(root);
-                            stage= (Stage)((Node)keyEvent.getSource()).getScene().getWindow();
-                            stage.setTitle("Super Chat");
-                            stage.setScene(scene);
-                            stage.show();
-                        }
-                        else{
-                            errorLabel.setText("Bad credentials");
-                        }
-
-                    } catch (XmlRpcException e) {
-                            errorLabel.setText(e.getMessage());
-                    }
-                }
-
-            } else {
-                errorLabel.setText(ErrorCodes.EMPTY_PASSWORD_OR_USERNAME.getErrorDescription());
-            }
-        }
-    }
 
     @FXML
     public void registerAction(ActionEvent event) throws IOException {

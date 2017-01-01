@@ -8,7 +8,6 @@
     <artifactId>ChatClient</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.xmlrpc</groupId>
@@ -30,6 +29,15 @@
                 <version>8.7.0</version>
                 <configuration>
                     <mainClass>org.vkalashnykov.Main</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>

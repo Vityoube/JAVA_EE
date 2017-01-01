@@ -11,7 +11,8 @@ public enum ErrorCodes {
     PASSWORD_TOO_SHORT("Password must be at least 8 symbols"),
     PASSWORD_TOO_LONG("Password must be from 8 to 20 symbols"),
     PASSWORDS_DO_NOT_MATCH("Passwords must match"),
-    SERVER_ERROR("Server error: error code {0} {1}");
+    SERVER_ERROR("Server error: error code {0} {1}"),
+    WRONG_PASSWORD("Wrong password");
 
 
 

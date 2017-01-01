@@ -5,13 +5,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.apache.xmlrpc.XmlRpcException;
-import org.apache.xmlrpc.client.XmlRpcClient;
-import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import org.vkalashnykov.configuration.XmlRpcConfiguration;
-
-import java.net.MalformedURLException;
-import java.net.URL;
+import javafx.stage.StageStyle;
+import org.vkalashnykov.configuration.FrameworkConfiguration;
 
 public class Main extends Application {
 
@@ -19,9 +14,11 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        XmlRpcConfiguration.configureXmlRpcClient();
+        FrameworkConfiguration.configureFrameworks();
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
+        primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.setTitle("Login");
+        primaryStage.setResizable(true);
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }

@@ -10,8 +10,8 @@
         <module name="chatserver" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="ChatClient" target="1.5" />
+    <bytecodeTargetLevel target="1.8">
+      <module name="ChatClient" target="1.8" />
       <module name="chatserver" target="1.8" />
     </bytecodeTargetLevel>
   </component>

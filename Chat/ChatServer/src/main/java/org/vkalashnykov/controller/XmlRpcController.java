@@ -6,17 +6,14 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.XmlRpcServletServer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.vkalashnykov.service.UserService;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 
 
 @Controller
@@ -31,6 +28,7 @@ public class XmlRpcController {
             SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
             System.out.println("Starting the server on port 8090");
             XmlRpcServerConfigImpl config= new XmlRpcServerConfigImpl();
+            config.setEnabledForExtensions(true);
 
             server=new XmlRpcServletServer();
             server.setConfig(config);
