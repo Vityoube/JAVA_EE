@@ -82,7 +82,6 @@ public class LoginPageController implements Initializable {
         String loginInput=login.getText();
         String passwordInput=password.getText();
         if (loginInput!= null && passwordInput!=null){
-            if (FrameworkConfiguration.Frameworks.XMLRPC.getImplementation().equals(FrameworkConfiguration.getFrameworkImplementation())){
                 try {
                     String result=(String) ChatClientApi.login(loginInput,passwordInput);
                     if (ServerStatuses.SUCCESS.name().equals(result)){
@@ -125,7 +124,6 @@ public class LoginPageController implements Initializable {
                 } catch (XmlRpcException e) {
                    errorLabel.setText(e.getMessage());
                 }
-            }
 
         } else {
             errorLabel.setText(ErrorCodes.EMPTY_PASSWORD_OR_USERNAME.getErrorDescription());

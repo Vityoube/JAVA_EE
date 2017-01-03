@@ -1,7 +1,11 @@
 package org.vkalashnykov.configuration;
 
+import org.vkalashnykov.api.BurlapAPI;
 import org.vkalashnykov.api.HessianAPI;
 import org.vkalashnykov.api.XmlRpcAPI;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
 
 /**
  * Created by vkalashnykov on 01.01.17.
@@ -30,9 +34,9 @@ public class FrameworkConfiguration {
         FrameworkConfiguration.frameworkImplementation = frameworkImplementation;
     }
 
-    public static void configureFrameworks(){
+    public static void configureFrameworks() throws IOException {
         XmlRpcAPI.configureXmlRpcClient();
-//        BurlapConfiguration.configureBurlap();
-//        HessianAPI.configureHessian();
+        BurlapAPI.configureBurlap();
+        HessianAPI.configureHessian();
     }
 }

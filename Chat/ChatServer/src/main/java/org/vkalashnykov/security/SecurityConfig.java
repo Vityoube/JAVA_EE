@@ -31,7 +31,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         http
                 .authorizeRequests()
                 .antMatchers("/xmlrpc").permitAll()
-                .antMatchers("/UserService").permitAll()
+                .antMatchers("/HessianService").permitAll()
+                .antMatchers("/BurlapService").permitAll()
                 .and()
                 .csrf().disable();
     }

@@ -71,6 +71,7 @@ public class ProfileController implements Initializable{
                 if (ServerStatuses.SUCCESS.name().equals(result)){
                     editButton.setText("Edit");
                     cancelButton.setVisible(false);
+                    cancelButton.setDisable(true);
                     profileFirstName.setEditable(false);
                     profileLastName.setEditable(false);
                     profileBirthDate.setEditable(false);
@@ -82,7 +83,11 @@ public class ProfileController implements Initializable{
                         ChatClientCache.getCurrentUserProfile().replace("lastname",modifiedLastName);
                         ChatClientCache.getCurrentUserProfile().replace("birthdate",modifiedBirthDate);
                         status.setVisible(true);
+                        profileFirstName.setText(ChatClientCache.getCurrentUserProfile().get("firstname"));
+                        profileLastName.setText(ChatClientCache.getCurrentUserProfile().get("lastname"));
+                        profileBirthDate.getEditor().setText(ChatClientCache.getCurrentUserProfile().get("birthdate"));
                         status.setTextFill(Color.GREEN);
+                        status.setVisible(true);
                         status.setText(ApplicationStatuses.CHANGE_SUCCESS.getStatusDescription());
                     }
                 }

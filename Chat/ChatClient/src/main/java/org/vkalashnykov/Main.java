@@ -1,22 +1,23 @@
 package org.vkalashnykov;
 
+import com.caucho.hessian.client.HessianProxyFactory;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.remoting.caucho.HessianProxyFactoryBean;
-import org.vkalashnykov.api.HessianUserService;
 import org.vkalashnykov.configuration.FrameworkConfiguration;
+import org.vkalashnykov.service.UserService;
 
-import javax.annotation.PostConstruct;
+import java.net.MalformedURLException;
 
 public class Main extends Application {
 
@@ -76,12 +77,6 @@ public class Main extends Application {
         launchApp(Main.class, args);
     }
 
-    @Bean(name="/UserService")
-    public HessianProxyFactoryBean  userService(){
-        HessianProxyFactoryBean factory =new HessianProxyFactoryBean();
-        factory.setServiceUrl("localhost:8090/chatserver/UserService");
-        factory.setServiceInterface(HessianUserService.class);
-        return  factory;
-    }
+
 
 }

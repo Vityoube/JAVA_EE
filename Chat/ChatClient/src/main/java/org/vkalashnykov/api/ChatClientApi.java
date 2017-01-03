@@ -19,8 +19,13 @@ public class ChatClientApi {
             List<String> loginCredentials=new ArrayList<>();
             loginCredentials.add(login);
             loginCredentials.add(password);
-            return (String)XmlRpcAPI.execute("UserService.login", loginCredentials);
+            return (String)XmlRpcAPI.execute("UserServiceImpl.login", loginCredentials);
         }
+         if (isHessian()){
+            return HessianAPI.getUserService().login(login,password);
+         }
+         if (isBurlap())
+             return BurlapAPI.getUserService().login(login,password);
         return null;
     }
 
@@ -28,8 +33,12 @@ public class ChatClientApi {
         if (isXMLRPC()){
             List<String> profileUsername=new ArrayList<>();
             profileUsername.add(username);
-            return (Map<String,String>)XmlRpcAPI.execute("UserService.profile",profileUsername);
+            return (Map<String,String>)XmlRpcAPI.execute("UserServiceImpl.profile",profileUsername);
         }
+        if (isHessian())
+            return HessianAPI.getUserService().profile(username);
+        if (isBurlap())
+            return BurlapAPI.getUserService().profile(username);
         return null;
 
     }
@@ -38,8 +47,12 @@ public class ChatClientApi {
         if (isXMLRPC()){
             List<String> currentStatus=new ArrayList<>();
             currentStatus.add(ChatClientCache.getCurrentUserStatus());
-            return Arrays.asList( (Object[]) XmlRpcAPI.execute("UserService.channelsByStatus",currentStatus));
+            return Arrays.asList( (Object[]) XmlRpcAPI.execute("UserServiceImpl.channelsByStatus",currentStatus));
         }
+        if (isHessian())
+            return HessianAPI.getUserService().channelsByStatus(ChatClientCache.getCurrentUserStatus());
+        if (isBurlap())
+            return BurlapAPI.getUserService().channelsByStatus(ChatClientCache.getCurrentUserStatus());
         return null;
     }
 
@@ -69,8 +82,12 @@ public class ChatClientApi {
             List<String> channelParams=new ArrayList<>();
             channelParams.add(currentChannel);
             channelParams.add(currentUserUsername);
-            return Arrays.asList((Object[]) XmlRpcAPI.execute("UserService.messagesOnChannel",channelParams));
+            return Arrays.asList((Object[]) XmlRpcAPI.execute("UserServiceImpl.messagesOnChannel",channelParams));
         }
+        if (isHessian())
+            return HessianAPI.getUserService().messagesOnChannel(currentChannel,currentUserUsername);
+        if (isBurlap())
+            return BurlapAPI.getUserService().messagesOnChannel(currentChannel,currentUserUsername);
         return null;
     }
 
@@ -78,9 +95,13 @@ public class ChatClientApi {
         if (isXMLRPC()) {
             List<String> username=new ArrayList<>();
             username.add(ChatClientCache.getCurrentUserUsername());
-            String currentUserStatus=(String)XmlRpcAPI.execute("UserService.getUserStatus",username);
+            String currentUserStatus=(String)XmlRpcAPI.execute("UserServiceImpl.getUserStatus",username);
             return currentUserStatus;
         }
+        if (isHessian())
+            return HessianAPI.getUserService().getUserStatus(ChatClientCache.getCurrentUserUsername());
+        if (isBurlap())
+            return BurlapAPI.getUserService().getUserStatus(ChatClientCache.getCurrentUserUsername());
         return null;
     }
 
@@ -88,8 +109,12 @@ public class ChatClientApi {
         if (isXMLRPC()){
             List<String> username=new ArrayList<>();
             username.add(ChatClientCache.getCurrentUserUsername());
-            return (String) XmlRpcAPI.execute("UserService.logout",username);
+            return (String) XmlRpcAPI.execute("UserServiceImpl.logout",username);
         }
+        if (isHessian())
+            return HessianAPI.getUserService().logout(ChatClientCache.getCurrentUserUsername());
+        if (isBurlap())
+            return BurlapAPI.getUserService().logout(ChatClientCache.getCurrentUserUsername());
         return null;
     }
 
@@ -97,9 +122,13 @@ public class ChatClientApi {
         if (isXMLRPC()){
             List<String> channel = new ArrayList<>();
             channel.add(ChatClientCache.getCurrentChannel());
-            Map<String,String> channelDetails=(Map) XmlRpcAPI.execute("UserService.channelDetails",channel);
+            Map<String,String> channelDetails=(Map) XmlRpcAPI.execute("UserServiceImpl.channelDetails",channel);
             return  channelDetails;
         }
+        if (isHessian())
+            return HessianAPI.getUserService().channelDetails(ChatClientCache.getCurrentChannel());
+        if (isBurlap())
+            return BurlapAPI.getUserService().channelDetails(ChatClientCache.getCurrentChannel());
         return null;
     }
 
@@ -107,8 +136,12 @@ public class ChatClientApi {
         if (isXMLRPC()){
             List<String> username=new ArrayList<>();
             username.add(ChatClientCache.getCurrentUserUsername());
-            return (String)XmlRpcAPI.execute("UserService.checkUserServerStatus",username);
+            return (String)XmlRpcAPI.execute("UserServiceImpl.checkUserServerStatus",username);
         }
+        if (isHessian())
+            return HessianAPI.getUserService().checkUserServerStatus(ChatClientCache.getCurrentUserUsername());
+        if (isBurlap())
+            return BurlapAPI.getUserService().checkUserServerStatus(ChatClientCache.getCurrentUserUsername());
         return  null;
     }
 
@@ -117,8 +150,12 @@ public class ChatClientApi {
             List<String> channelParams =new ArrayList<String>();
             channelParams.add(ChatClientCache.getCurrentUserUsername());
             channelParams.add(ChatClientCache.getCurrentChannel());
-            return (Map<String,String>) XmlRpcAPI.execute("UserService.enterChannel",channelParams);
+            return (Map<String,String>) XmlRpcAPI.execute("UserServiceImpl.enterChannel",channelParams);
         }
+        if (isHessian())
+            return HessianAPI.getUserService().enterChannel(ChatClientCache.getCurrentUserUsername(),ChatClientCache.getCurrentChannel());
+        if (isBurlap())
+            return BurlapAPI.getUserService().enterChannel(ChatClientCache.getCurrentUserUsername(),ChatClientCache.getCurrentChannel());
         return null;
     }
 
@@ -126,8 +163,12 @@ public class ChatClientApi {
         if (isXMLRPC()){
             List<String> channelName=new ArrayList<>();
             channelName.add(ChatClientCache.getCurrentChannel());
-            return Arrays.asList((Object[])XmlRpcAPI.execute("UserService.usersOnChannel",channelName));
+            return Arrays.asList((Object[])XmlRpcAPI.execute("UserServiceImpl.usersOnChannel",channelName));
         }
+        if (isHessian())
+            return HessianAPI.getUserService().usersOnChannel(ChatClientCache.getCurrentChannel());
+        if (isBurlap())
+            return BurlapAPI.getUserService().usersOnChannel(ChatClientCache.getCurrentChannel());
         return null;
     }
 
@@ -137,8 +178,14 @@ public class ChatClientApi {
             messageParams.add(ChatClientCache.getCurrentUserUsername());
             messageParams.add(ChatClientCache.getCurrentChannel());
             messageParams.add(messageText);
-            String result=(String)XmlRpcAPI.execute("UserService.postMessage",messageParams);
+            String result=(String)XmlRpcAPI.execute("UserServiceImpl.postMessage",messageParams);
         }
+        if (isHessian())
+            return HessianAPI.getUserService().postMessage(ChatClientCache.getCurrentUserUsername(),
+                    ChatClientCache.getCurrentChannel(),messageText);
+        if (isBurlap())
+            return BurlapAPI.getUserService().postMessage(ChatClientCache.getCurrentUserUsername(),
+                    ChatClientCache.getCurrentChannel(),messageText);
 
         return null;
     }
@@ -150,8 +197,12 @@ public class ChatClientApi {
             modifiedParams.add(firstName);
             modifiedParams.add(lastName);
             modifiedParams.add(birthDate);
-            return (String) XmlRpcAPI.execute("UserService.modifyUserDetails",modifiedParams);
+            return (String) XmlRpcAPI.execute("UserServiceImpl.modifyUserDetails",modifiedParams);
         }
+        if (isHessian())
+            return HessianAPI.getUserService().modifyUserDetails(ChatClientCache.getCurrentUserUsername(),firstName,lastName,birthDate);
+        if (isBurlap())
+            return BurlapAPI.getUserService().modifyUserDetails(ChatClientCache.getCurrentUserUsername(),firstName,lastName,birthDate);
         return null;
 
     }
@@ -160,8 +211,12 @@ public class ChatClientApi {
         if (isXMLRPC()) {
             List<String> username=new ArrayList<>();
             username.add(ChatClientCache.getUsername());
-            return (String) XmlRpcAPI.execute("UserService.closeUser",username);
+            return (String) XmlRpcAPI.execute("UserServiceImpl.closeUser",username);
         }
+        if (isHessian())
+            return HessianAPI.getUserService().closeUser(ChatClientCache.getUsername());
+        if (isBurlap())
+            return BurlapAPI.getUserService().closeUser(ChatClientCache.getUsername());
         return null;
     }
 
@@ -172,8 +227,14 @@ public class ChatClientApi {
             changePasswordParams.add(currentpassword);
             changePasswordParams.add(newPassword);
             changePasswordParams.add(passwordConfirm);
-            return (String) XmlRpcAPI.execute("UserService.changePassword",changePasswordParams);
+            return (String) XmlRpcAPI.execute("UserServiceImpl.changePassword",changePasswordParams);
         }
+        if (isHessian())
+            return HessianAPI.getUserService().changePassword(ChatClientCache.getCurrentUserUsername(),currentpassword,
+                    newPassword,passwordConfirm);
+        if (isBurlap())
+            return BurlapAPI.getUserService().changePassword(ChatClientCache.getCurrentUserUsername(),currentpassword,
+                    newPassword,passwordConfirm);
         return  null;
     }
 
@@ -184,8 +245,12 @@ public class ChatClientApi {
             banParams.add(currentUser);
             banParams.add(banTimeInput);
             banParams.add(banCauseInput);
-            return (String)XmlRpcAPI.execute("UserService.banUser",banParams);
+            return (String)XmlRpcAPI.execute("UserServiceImpl.banUser",banParams);
         }
+        if (isHessian())
+            return HessianAPI.getUserService().banUser(currentUser,banTimeInput,banCauseInput);
+        if (isBurlap())
+            return BurlapAPI.getUserService().banUser(currentUser,banTimeInput,banCauseInput);
         return null;
 
     }
@@ -196,8 +261,12 @@ public class ChatClientApi {
             changeParams.add(ChatClientCache.getUsername());
             changeParams.add(status);
             changeParams.add(statusChangeCause);
-            return (String) XmlRpcAPI.execute("UserService.changeStatus",changeParams);
+            return (String) XmlRpcAPI.execute("UserServiceImpl.changeStatus",changeParams);
         }
+        if (isHessian())
+            return HessianAPI.getUserService().changeStatus(ChatClientCache.getUsername(),status,statusChangeCause);
+        if (isBurlap())
+            return BurlapAPI.getUserService().changeStatus(ChatClientCache.getUsername(),status,statusChangeCause);
         return null;
     }
 
@@ -209,8 +278,12 @@ public class ChatClientApi {
             registrationParams.add(name);
             registrationParams.add(lastName);
             registrationParams.add(birthdate);
-            return  (String) XmlRpcAPI.getXmlRpcServer().execute("UserService.createUser",registrationParams);
+            return  (String) XmlRpcAPI.getXmlRpcServer().execute("UserServiceImpl.createUser",registrationParams);
         }
+        if (isHessian())
+            return HessianAPI.getUserService().createUser(username,password,name,lastName,birthdate);
+        if (isBurlap())
+            return BurlapAPI.getUserService().createUser(username,password,name,lastName,birthdate);
         return null;
     }
 }

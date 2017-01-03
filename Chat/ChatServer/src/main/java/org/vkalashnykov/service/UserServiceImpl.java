@@ -18,14 +18,13 @@ import org.vkalashnykov.persistence.UserDAO;
 import org.vkalashnykov.utils.DateTimeUtil;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private UserDAO userDAO;
     @Autowired
@@ -260,7 +259,7 @@ public class UserServiceImpl implements UserService {
         return Statuses.ERROR.name();
     }
 
-    public List<String> channelsByStatus(@NotNull  String userStatus){
+    public List<Object> channelsByStatus(@NotNull  String userStatus){
         List<Channel> channels=channelDAO.findAll();
         List<Channel> filteredChannels=channelDAO.findAll();
         if (!UserRoles.ADMIN.getAuthority().equals(userStatus) && !UserRoles.MODERATOR.getAuthority().equals(userStatus)){
@@ -272,7 +271,7 @@ public class UserServiceImpl implements UserService {
                         .filter(channel -> channel.getAllowedStatus().equals(UserRoles.USER.getAuthority()))
                         .collect(Collectors.toList()));
         }
-        List<String> channelNames=new ArrayList<>();
+        List<Object> channelNames=new ArrayList<>();
         for (Channel channel : filteredChannels){
             channelNames.add(channel.getChannelName());
         }
@@ -330,10 +329,10 @@ public class UserServiceImpl implements UserService {
         return Statuses.SUCCESS.name();
     }
 
-    public List<String> usersOnChannel(@NotNull String channelName){
+    public List<Object> usersOnChannel(@NotNull String channelName){
         Channel channel =channelDAO.findByChannelName(channelName).orElse(null);
         if (channel!=null){
-            List<String> usersOnChannel=new ArrayList<>();
+            List<Object> usersOnChannel=new ArrayList<>();
             for (User user : channel.getUsers())
                 usersOnChannel.add(user.getUsername());
             return usersOnChannel;
@@ -376,7 +375,7 @@ public class UserServiceImpl implements UserService {
         return user.getAuthorities().get(user.getAuthorities().size()-1).getAuthority();
     }
 
-    public List<String> messagesOnChannel(String channel,String username){
+    public List<Object> messagesOnChannel(String channel,String username){
         User user = userDAO.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("user " + username + " was not found"));
         List<Message> filteredMessages;
         if (messagesOnChannel.get(channel)==null)
@@ -388,11 +387,11 @@ public class UserServiceImpl implements UserService {
                 removeAll(filteredMessages.stream().
                         filter(message -> message.getPostTime().before(DateTimeUtil.minus(user.getLoginTime(),minute)))
                         .collect(Collectors.toList()));
-        List<String> currentMessages=new ArrayList<>();
+        List<Object> currentMessages=new ArrayList<>();
         for (Message message :filteredMessages){
             if (MessageStatuses.NORMAL.getStatusName().equals(message.getMessageStatus())){
-                String messageText=message.getMessageText()+"\t[ "+DateTimeUtil.convertTimeToString(message.getPostTime())+" ]\n";
-                String messageUser=message.getUser();
+                String messageText=(String)message.getMessageText()+"\t[ "+DateTimeUtil.convertTimeToString(message.getPostTime())+" ]\n";
+                String messageUser=(String)message.getUser();
                 String currentMessage=messageUser+": "+messageText;
                 currentMessages.add(currentMessage);
             } else {
