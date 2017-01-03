@@ -15,6 +15,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.apache.xmlrpc.XmlRpcException;
+import org.vkalashnykov.api.ChatClientApi;
+import org.vkalashnykov.api.XmlRpcAPI;
 import org.vkalashnykov.configuration.*;
 
 import java.io.IOException;
@@ -82,19 +84,13 @@ public class LoginPageController implements Initializable {
         if (loginInput!= null && passwordInput!=null){
             if (FrameworkConfiguration.Frameworks.XMLRPC.getImplementation().equals(FrameworkConfiguration.getFrameworkImplementation())){
                 try {
-                    List<String> params = new ArrayList<String>();
-                    params.add(loginInput);
-                    params.add(passwordInput);
-                    String result=( String) XmlRpcAPI.getXmlRpcServer().execute("UserService.login",params);
+                    String result=(String) ChatClientApi.login(loginInput,passwordInput);
                     if (ServerStatuses.SUCCESS.name().equals(result)){
                         ChatClientCache.setCurrentUserUsername(loginInput);
-                        params.remove(passwordInput);
-                        Map<String, String> currentUserProfile=(Map) XmlRpcAPI.getXmlRpcServer().execute("UserService.profile",params);
+                       Map<String,String> currentUserProfile= ChatClientApi.profile(ChatClientCache.getCurrentUserUsername());
                         ChatClientCache.setCurrentUserProfile(currentUserProfile);
                         ChatClientCache.setCurrentUserStatus(currentUserProfile.get("userStatus"));
-                        params=new ArrayList<String>();
-                        params.add(ChatClientCache.getCurrentUserStatus());
-                        List<Object> channels= Arrays.asList( (Object[]) XmlRpcAPI.getXmlRpcServer().execute("UserService.channelsByStatus",params));
+                        List<Object> channels=ChatClientApi.channelsByStatus();
                         List<String> channelsList =new ArrayList<>();
                         for (Object channel : channels){
                             channelsList.add((String)channel);
@@ -141,20 +137,19 @@ public class LoginPageController implements Initializable {
         Platform.exit();
     }
 
-    @FXML
+
     public void configureXmlRpc(ActionEvent event) {
         if (event.getSource()==xmlrpc){
             FrameworkConfiguration.setFrameworkImplementation(FrameworkConfiguration.Frameworks.XMLRPC.getImplementation());
         }
     }
-    @FXML
     public void configureBurlap(ActionEvent event) {
         if (event.getSource()==burlap){
             FrameworkConfiguration.setFrameworkImplementation(FrameworkConfiguration.Frameworks.BURLAP.getImplementation());
         }
     }
 
-    @FXML
+
     public void configureHessian(ActionEvent event){
         if (event.getSource()==hessian){
             FrameworkConfiguration.setFrameworkImplementation(FrameworkConfiguration.Frameworks.HESSIAN.getImplementation());

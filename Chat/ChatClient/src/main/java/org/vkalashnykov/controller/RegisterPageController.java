@@ -12,10 +12,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.apache.xmlrpc.XmlRpcException;
+import org.vkalashnykov.api.ChatClientApi;
 import org.vkalashnykov.configuration.ApplicationStatuses;
 import org.vkalashnykov.configuration.ErrorCodes;
 import org.vkalashnykov.configuration.ServerStatuses;
-import org.vkalashnykov.configuration.XmlRpcAPI;
+import org.vkalashnykov.api.XmlRpcAPI;
 
 import java.net.URL;
 import java.util.*;
@@ -78,13 +79,8 @@ public class RegisterPageController implements Initializable {
             TextField birthDateInput=birthdatePicker.getEditor();
             String birthdate=birthDateInput.getText();
             try {
-                List<Object> registrationParams = new ArrayList<Object>();
-                registrationParams.add(username);
-                registrationParams.add(password);
-                registrationParams.add(name);
-                registrationParams.add(lastName);
-                registrationParams.add(birthdate);
-                String registrationResult=(String) XmlRpcAPI.getXmlRpcServer().execute("UserService.createUser",registrationParams);
+
+                String registrationResult= ChatClientApi.register(username,password,name,lastName,birthdate);
                 if (ServerStatuses.SUCCESS.name().equals(registrationResult)){
                     usernameError.setText("");
                     dateError.setText("");

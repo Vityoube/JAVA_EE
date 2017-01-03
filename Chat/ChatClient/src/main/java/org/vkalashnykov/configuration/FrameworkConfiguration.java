@@ -1,5 +1,8 @@
 package org.vkalashnykov.configuration;
 
+import org.vkalashnykov.api.HessianAPI;
+import org.vkalashnykov.api.XmlRpcAPI;
+
 /**
  * Created by vkalashnykov on 01.01.17.
  */
@@ -30,6 +33,6 @@ public class FrameworkConfiguration {
     public static void configureFrameworks(){
         XmlRpcAPI.configureXmlRpcClient();
 //        BurlapConfiguration.configureBurlap();
-//        HessianConfiguration.configureHessian();
+//        HessianAPI.configureHessian();
     }
 }

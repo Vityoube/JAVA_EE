@@ -7,10 +7,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Stage;
 import org.apache.xmlrpc.XmlRpcException;
+import org.vkalashnykov.api.ChatClientApi;
 import org.vkalashnykov.configuration.ChatClientCache;
 import org.vkalashnykov.configuration.ErrorCodes;
 import org.vkalashnykov.configuration.ServerStatuses;
-import org.vkalashnykov.configuration.XmlRpcAPI;
+import org.vkalashnykov.api.XmlRpcAPI;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -49,12 +50,7 @@ public class PasswordController implements Initializable {
         newPasswordError.setVisible(false);
         passwordConfirmError.setVisible(false);
         if (!currentPasswordInput.isEmpty() && !newPasswordInput.isEmpty() && !passwordConfirmInput.isEmpty()){
-            List<String> params = new ArrayList<>();
-            params.add(ChatClientCache.getCurrentUserUsername());
-            params.add(currentPasswordInput);
-            params.add(newPasswordInput);
-            params.add(passwordConfirmInput);
-            String result=(String) XmlRpcAPI.getXmlRpcServer().execute("UserService.changePassword",params);
+            String result= ChatClientApi.changePassword(currentPasswordInput,newPasswordInput,passwordConfirmInput);
             if (ServerStatuses.SUCCESS.name().equals(result)){
                 Stage stage=(Stage)((Node)event.getSource()).getScene().getWindow();
                 stage.close();

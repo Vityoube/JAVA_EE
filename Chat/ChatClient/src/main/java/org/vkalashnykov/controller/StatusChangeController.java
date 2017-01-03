@@ -1,7 +1,5 @@
 package org.vkalashnykov.controller;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
@@ -13,6 +11,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.apache.xmlrpc.XmlRpcException;
+import org.vkalashnykov.api.ChatClientApi;
+import org.vkalashnykov.api.XmlRpcAPI;
 import org.vkalashnykov.configuration.*;
 
 import java.net.URL;
@@ -60,11 +60,8 @@ public class StatusChangeController implements Initializable{
         String status=statusSplitMenu.getText();
         String statusChangeCause =causeOfChangeTextArea.getText();
         try {
-            List<String> changeParams=new ArrayList<>();
-            changeParams.add(ChatClientCache.getUsername());
-            changeParams.add(status);
-            changeParams.add(statusChangeCause);
-            String result= (String) XmlRpcAPI.getXmlRpcServer().execute("UserService.changeStatus",changeParams);
+
+            String result= ChatClientApi.changeStatus(status,statusChangeCause);
             if (ServerStatuses.SUCCESS.name().equals(result)){
                 ChatClientCache.setProfileUserStatus(status);
                 success(ApplicationStatuses.USER_CHANGE_STATUS_SUCCESS.getStatusDescription());

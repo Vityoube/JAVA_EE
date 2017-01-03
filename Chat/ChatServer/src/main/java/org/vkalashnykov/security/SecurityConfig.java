@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.vkalashnykov.service.UserService;
+import org.vkalashnykov.service.UserServiceImpl;
 
 /**
  * Created by vkalashnykov on 25.12.16.
@@ -18,7 +18,7 @@ import org.vkalashnykov.service.UserService;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userServiceImpl;
 
 
     @Bean
@@ -31,6 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         http
                 .authorizeRequests()
                 .antMatchers("/xmlrpc").permitAll()
+                .antMatchers("/UserService").permitAll()
                 .and()
                 .csrf().disable();
     }
@@ -38,6 +39,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     @Autowired
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userService).passwordEncoder(getBCryptPasswordEncoder());
+        auth.userDetailsService(userServiceImpl).passwordEncoder(getBCryptPasswordEncoder());
     }
 }

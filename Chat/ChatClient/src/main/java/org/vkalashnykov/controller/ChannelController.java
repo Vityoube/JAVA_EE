@@ -14,8 +14,9 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apache.xmlrpc.XmlRpcException;
+import org.vkalashnykov.api.ChatClientApi;
 import org.vkalashnykov.configuration.ChatClientCache;
-import org.vkalashnykov.configuration.XmlRpcAPI;
+import org.vkalashnykov.api.XmlRpcAPI;
 
 import java.io.IOException;
 import java.net.URL;
@@ -44,15 +45,13 @@ public class ChannelController implements Initializable{
             public void handle(ActionEvent event) {
                 try {
                     userFlow.getChildren().removeAll(linkList);
-                    List<String> params = new ArrayList<>();
-                    params.add(ChatClientCache.getCurrentChannel());
-                    Map<String,String> channelDetails= (Map) XmlRpcAPI.getXmlRpcServer().execute("UserService.channelDetails",params);
+                    Map<String,String> channelDetails= ChatClientApi.channelDetails();
                     ChatClientCache.setChannelDetails(channelDetails);
                     channelName.setText(ChatClientCache.getCurrentChannel());
                     channelStatus.setText(ChatClientCache.getChannelDetails().get("allowedStatus"));
                     channelDescription.setText(ChatClientCache.getChannelDetails().get("description"));
                     usersCount.setText(ChatClientCache.getChannelDetails().get("usersCount"));
-                    List<Object> usersOnChannel =Arrays.asList((Object[])XmlRpcAPI.getXmlRpcServer().execute("UserService.usersOnChannel",params));
+                    List<Object> usersOnChannel =ChatClientApi.usersOnChannel();
                     usersOnChannelList=new ArrayList<>();
                     for(Object userOnChannel : usersOnChannel)
                         usersOnChannelList.add((String)userOnChannel);
@@ -73,8 +72,7 @@ public class ChannelController implements Initializable{
                                 try {
                                     List<String> params = new ArrayList<String>();
                                     String userProfileName = link.getText();
-                                    params.add(userProfileName);
-                                    Map<String, String> userProfile = (Map<String, String>) XmlRpcAPI.getXmlRpcServer().execute("UserService.profile", params);
+                                    Map<String, String> userProfile = ChatClientApi.profile(userProfileName);
                                     ChatClientCache.setUserProfile(userProfile);
                                     ChatClientCache.setUsername(userProfileName);
                                     ChatClientCache.setProfileUserStatus(userProfile.get("userStatus"));

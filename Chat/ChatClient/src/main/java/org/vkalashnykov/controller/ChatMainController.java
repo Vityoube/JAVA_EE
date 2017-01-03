@@ -17,8 +17,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.util.Pair;
 import org.apache.xmlrpc.XmlRpcException;
+import org.vkalashnykov.api.ChatClientApi;
+import org.vkalashnykov.api.XmlRpcAPI;
 import org.vkalashnykov.configuration.*;
 
 import java.io.IOException;
@@ -53,14 +54,12 @@ public class ChatMainController implements Initializable{
             @Override
             public void handle(ActionEvent event) {
                 if (!ChatClientCache.getCurrentChannel().isEmpty()){
-                    messagesWindow.setText("");
                     try {
-                        List<String> channelParams=new ArrayList<>();
-                        channelParams.add(ChatClientCache.getCurrentChannel());
-                        channelParams.add(ChatClientCache.getCurrentUserUsername());
-                        List<Object> messagesOnChannel=Arrays.asList((Object[])XmlRpcAPI.getXmlRpcServer().execute("UserService.messagesOnChannel",channelParams));
+                        List<Object> messagesOnChannel=
+                                ChatClientApi.messagesOnChannel(ChatClientCache.getCurrentChannel(),ChatClientCache.getCurrentUserUsername());
                         for (Object messageOnChannel: messagesOnChannel)
-                            messagesWindow.setText(messagesWindow.getText()+(String)messageOnChannel);
+                            if (!messagesWindow.getText().contains((String)messageOnChannel))
+                            messagesWindow.appendText((String)messageOnChannel);
                     } catch (XmlRpcException e) {
                         e.printStackTrace();
                     }
@@ -78,9 +77,7 @@ public class ChatMainController implements Initializable{
             public void handle(ActionEvent event) {
 
                 try {
-                    List<String> username=new ArrayList<>();
-                    username.add(ChatClientCache.getCurrentUserUsername());
-                    String currentUserStatus=(String)XmlRpcAPI.getXmlRpcServer().execute("UserService.getUserStatus",username);
+                    String currentUserStatus=ChatClientApi.getUserStatus();
                     ChatClientCache.setCurrentUserStatus(currentUserStatus);
                 } catch (XmlRpcException e) {
                     e.printStackTrace();
@@ -96,11 +93,8 @@ public class ChatMainController implements Initializable{
     public void onClose(ActionEvent event) {
 
         try {
-            List<String> params=new ArrayList<>();
-            params.add(ChatClientCache.getCurrentUserUsername());
-            String result =(String) XmlRpcAPI.getXmlRpcServer().execute("UserService.logout",params);
-
-            if (ServerStatuses.SUCCESS.name().equals(result)) {
+           String logout=ChatClientApi.logout();
+            if (ServerStatuses.SUCCESS.name().equals(logout)) {
                 ChatClientCache.cleanCache();
                 Platform.exit();
             }
@@ -114,10 +108,8 @@ public class ChatMainController implements Initializable{
         Stage stage;
         Parent root;
         try {
-            List<String> params=new ArrayList<>();
-            params.add(ChatClientCache.getCurrentUserUsername());
-            String result =(String) XmlRpcAPI.getXmlRpcServer().execute("UserService.logout",params);
-            if (ServerStatuses.SUCCESS.name().equals(result)){
+            String logout=ChatClientApi.logout();
+            if (ServerStatuses.SUCCESS.name().equals(logout)){
                 ChatClientCache.cleanCache();
                 root= FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
                 Scene scene=new Scene(root);
@@ -174,10 +166,7 @@ public class ChatMainController implements Initializable{
     }
 
     public void channelDetails() throws XmlRpcException, IOException {
-        List<String> params = new ArrayList<>();
-        params.add(ChatClientCache.getCurrentChannel());
-        Map<String,String> channelDetails=(Map) XmlRpcAPI.getXmlRpcServer().execute("UserService.channelDetails",params);
-        ChatClientCache.setChannelDetails(channelDetails);
+        ChatClientCache.setChannelDetails(ChatClientApi.channelDetails());
         Parent root =FXMLLoader.load(getClass().getResource("/fxml/channel_details.fxml"));
         Scene scene = new Scene(root);
         Stage stage=new Stage();
@@ -203,10 +192,9 @@ public class ChatMainController implements Initializable{
         Timeline userServerStatusListener=new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                List<String> userParams=new ArrayList<>();
-                userParams.add(ChatClientCache.getCurrentUserUsername());
+
                 try {
-                    String result=(String)XmlRpcAPI.getXmlRpcServer().execute("UserService.checkUserServerStatus",userParams);
+                    String result=ChatClientApi.checkUserServerStatus();
                     if (UserServerStatus.BAN.getUserServerStatus().equals(result)) {
                         Platform.exit();
                         Parent root=FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
@@ -232,9 +220,7 @@ public class ChatMainController implements Initializable{
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    List<String> params=new ArrayList<String>();
-                    params.add(ChatClientCache.getCurrentUserStatus());
-                    List<Object> channels = Arrays.asList( (Object[]) XmlRpcAPI.getXmlRpcServer().execute("UserService.channelsByStatus",params));
+                    List<Object> channels=ChatClientApi.channelsByStatus();
                     List<String> listOfChannels =new ArrayList<>();
                     for (Object channel : channels){
                         listOfChannels.add((String)channel);
@@ -255,6 +241,7 @@ public class ChatMainController implements Initializable{
         channelsList.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                messagesWindow.setText("");
                 String selectedChannel=(String)channelsList.getSelectionModel().getSelectedItem();
                 channel.setText(selectedChannel);
                 channel.setVisible(true);
@@ -264,13 +251,9 @@ public class ChatMainController implements Initializable{
                 channelDetailsHyperlink.setVisible(true);
                 ChatClientCache.setCurrentChannel(selectedChannel);
                 try {
-                    List<String> params =new ArrayList<String>();
-                    params.add(ChatClientCache.getCurrentUserUsername());
-                    params.add(ChatClientCache.getCurrentChannel());
-                    Map<String,String> channelDetails = (Map<String,String>) XmlRpcAPI.getXmlRpcServer().execute("UserService.enterChannel",params);
+                    Map<String,String> channelDetails=ChatClientApi.enterChannel();
                     ChatClientCache.setChannelDetails(channelDetails);
-                    params.remove(ChatClientCache.getCurrentUserUsername());
-                    List<Object> usersOnChannel =Arrays.asList((Object[])XmlRpcAPI.getXmlRpcServer().execute("UserService.usersOnChannel",params));
+                    List<Object> usersOnChannel =ChatClientApi.usersOnChannel();
                     List<String>usersOnChannelList=new ArrayList<String>();
                     for(Object userOnChannel : usersOnChannel)
                         usersOnChannelList.add((String)userOnChannel);
@@ -286,11 +269,7 @@ public class ChatMainController implements Initializable{
     public void onSendMessage(ActionEvent event) {
         try {
             String messageText = messageArea.getText();
-            List<String> messageParams=new ArrayList<>();
-            messageParams.add(ChatClientCache.getCurrentUserUsername());
-            messageParams.add(ChatClientCache.getCurrentChannel());
-            messageParams.add(messageText);
-            String result=(String)XmlRpcAPI.getXmlRpcServer().execute("UserService.postMessage",messageParams);
+            String result=ChatClientApi.sendMessage(messageText);
             messageArea.setText("");
         } catch (XmlRpcException e) {
             e.printStackTrace();

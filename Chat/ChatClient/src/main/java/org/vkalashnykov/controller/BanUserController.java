@@ -10,13 +10,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.apache.xmlrpc.XmlRpcException;
+import org.vkalashnykov.api.ChatClientApi;
 import org.vkalashnykov.configuration.ApplicationStatuses;
 import org.vkalashnykov.configuration.ChatClientCache;
 import org.vkalashnykov.configuration.ErrorCodes;
-import org.vkalashnykov.configuration.XmlRpcAPI;
+import org.vkalashnykov.api.XmlRpcAPI;
 
 import java.net.URL;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -64,12 +64,9 @@ public class BanUserController implements Initializable{
         }
         if (isErrorStatus())
             return;
-        List<String> banParams=new ArrayList<>();
-        banParams.add(currentUser);
-        banParams.add(banTimeInput);
-        banParams.add(banCauseInput);
+
         try {
-            XmlRpcAPI.getXmlRpcServer().execute("UserService.banUser",banParams);
+            String result= ChatClientApi.banUser(currentUser,banTimeInput,banCauseInput);
         } catch (XmlRpcException e) {
             e.printStackTrace();
             serverError(e.getLocalizedMessage());

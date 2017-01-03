@@ -11,6 +11,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.apache.xmlrpc.XmlRpcException;
+import org.vkalashnykov.api.ChatClientApi;
+import org.vkalashnykov.api.XmlRpcAPI;
 import org.vkalashnykov.configuration.*;
 
 import java.io.IOException;
@@ -63,13 +65,9 @@ public class ProfileController implements Initializable{
             String modifiedFirstName=profileFirstName.getText();
             String modifiedLastName=profileLastName.getText();
             String modifiedBirthDate=profileBirthDate.getEditor().getText();
-            List<String> params = new ArrayList<>();
-            params.add(ChatClientCache.getCurrentUserUsername());
-            params.add(modifiedFirstName);
-            params.add(modifiedLastName);
-            params.add(modifiedBirthDate);
+
             try {
-                String result=(String) XmlRpcAPI.getXmlRpcServer().execute("UserService.modifyUserDetails",params);
+                String result= ChatClientApi.modifyUserDetails(modifiedFirstName,modifiedLastName,modifiedBirthDate);
                 if (ServerStatuses.SUCCESS.name().equals(result)){
                     editButton.setText("Edit");
                     cancelButton.setVisible(false);
@@ -148,10 +146,8 @@ public class ProfileController implements Initializable{
     public void onCloseProfile(ActionEvent event) throws XmlRpcException, IOException {
         Stage stage;
         Parent root;
-        List<String> params=new ArrayList<>();
-        params.add(ChatClientCache.getUsername());
-        String result=(String) XmlRpcAPI.getXmlRpcServer().execute("UserService.closeUser",params);
-        if (ServerStatuses.SUCCESS.name().equals(result)){
+        String close=ChatClientApi.closeUser();
+        if (ServerStatuses.SUCCESS.name().equals(close)){
             ChatClientCache.cleanCache();
             root= FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
             Scene scene=new Scene(root);

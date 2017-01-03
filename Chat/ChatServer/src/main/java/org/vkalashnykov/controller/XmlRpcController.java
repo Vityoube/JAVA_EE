@@ -9,10 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-import org.vkalashnykov.service.UserService;
+import org.vkalashnykov.service.UserServiceImpl;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 public class XmlRpcController {
     private XmlRpcServletServer server;
     @Autowired
-    UserService userService;
+    UserServiceImpl userServiceImpl;
 
     @PostConstruct
     public void init() throws XmlRpcException {
@@ -35,8 +34,8 @@ public class XmlRpcController {
             server.setConfig(config);
 
             PropertyHandlerMapping xmlRpcHandlerMapping=new PropertyHandlerMapping();
-            xmlRpcHandlerMapping.setRequestProcessorFactoryFactory(pClass->pRequest->userService);
-            xmlRpcHandlerMapping.addHandler(UserService.class.getSimpleName(),UserService.class);
+            xmlRpcHandlerMapping.setRequestProcessorFactoryFactory(pClass->pRequest-> userServiceImpl);
+            xmlRpcHandlerMapping.addHandler(UserServiceImpl.class.getSimpleName(), UserServiceImpl.class);
             XmlRpcSystemImpl.addSystemHandler(xmlRpcHandlerMapping);
             server.setHandlerMapping(xmlRpcHandlerMapping);
             System.out.println("The server started successfully.");

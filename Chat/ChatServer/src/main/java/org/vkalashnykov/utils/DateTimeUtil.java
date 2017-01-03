@@ -11,7 +11,7 @@ import java.util.Date;
 public class DateTimeUtil {
     private static SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
-    private static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:MM:ss dd.MM.yyyy");
+    private static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");
 
     public static String convertDatetoString(Date date){
         if (date!=null){
@@ -63,6 +63,17 @@ public class DateTimeUtil {
         if (time!=null){
             String formattedDateString=timeFormat.format(time);
             return formattedDateString;
+        }
+        return null;
+    }
+
+    public static Date getCurrentTime() {
+        Date time=new Date();
+        try {
+            Date currentTime =timeFormat.parse(time.toString());
+            return  currentTime;
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
         return null;
     }

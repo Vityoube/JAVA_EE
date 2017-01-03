@@ -25,8 +25,8 @@
                   <Menu id="configuration" mnemonicParsing="false" text="Configuration">
                     <items>
                       <MenuItem mnemonicParsing="false" onAction="#configureXmlRpc" text="XML-RPC" fx:id="xmlrpc" />
-                        <MenuItem fx:id="burlap" mnemonicParsing="false" onAction="#configureBurlap" text="Hessian" />
-                        <MenuItem fx:id="hessian" mnemonicParsing="false" onAction="#configureHessian" text="Burlap" />
+                        <MenuItem fx:id="hessian" mnemonicParsing="false" onAction="#configureHessian" text="Hessian" />
+                        <MenuItem fx:id="burlap" mnemonicParsing="false" onAction="#configureBurlap" text="Burlap" />
                     </items>
                   </Menu>
               </menus>
