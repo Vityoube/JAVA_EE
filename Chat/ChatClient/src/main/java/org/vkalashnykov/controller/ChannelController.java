@@ -1,18 +1,18 @@
 package org.vkalashnykov.controller;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.apache.xmlrpc.XmlRpcException;
 import org.vkalashnykov.configuration.ChatClientCache;
 import org.vkalashnykov.configuration.XmlRpcAPI;
@@ -31,49 +31,78 @@ public class ChannelController implements Initializable{
     public TextArea channelDescription;
     public Label usersCount;
     public AnchorPane usersPane;
+    public TextFlow userFlow;
+
+    private List<String> usersOnChannelList;
+    private List<Hyperlink> linkList =new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        channelName.setText(ChatClientCache.getCurrentChannel());
-        channelStatus.setText(ChatClientCache.getChannelDetails().get("allowedStatus"));
-        channelDescription.setText(ChatClientCache.getChannelDetails().get("description"));
-        usersCount.setText(ChatClientCache.getChannelDetails().get("usersCount"));
-        ListIterator<String> usersIterator=ChatClientCache.getUsersOnChannel().listIterator();
-        HBox usersBox= new HBox();
-        while(usersIterator.hasNext()) {
-            String user = usersIterator.next();
-            Hyperlink userLink = new Hyperlink(user);
-            usersBox.getChildren().add(userLink);
-            usersBox.setSpacing(3);
-        }
-        usersPane.getChildren().add(usersBox);
-        Iterator<Node> linkIterator=usersBox.getChildren().iterator();
-        while(linkIterator.hasNext()){
-            Hyperlink link=(Hyperlink)linkIterator.next();
-            link.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    try{
-                        List<String> params=new ArrayList<String>();
-                        String userProfileName=link.getText();
-                        params.add(userProfileName);
-                        Map<String,String> userProfile = (Map<String,String>) XmlRpcAPI.getXmlRpcServer().execute("UserService.profile",params);
-                        ChatClientCache.setUserProfile(userProfile);
-                        ChatClientCache.setUsername(userProfileName);
-                        Parent root= FXMLLoader.load(getClass().getResource("/fxml/profile.fxml"));
-                        Stage stage=new Stage();
-                        Scene scene=new Scene(root);
-                        stage.setScene(scene);
-                        stage.setTitle(link.getText()+"'s profile");
-                        stage.show();
-                    } catch (XmlRpcException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
 
-        }
+        Timeline usersUpdater=new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    userFlow.getChildren().removeAll(linkList);
+                    List<String> params = new ArrayList<>();
+                    params.add(ChatClientCache.getCurrentChannel());
+                    Map<String,String> channelDetails= (Map) XmlRpcAPI.getXmlRpcServer().execute("UserService.channelDetails",params);
+                    ChatClientCache.setChannelDetails(channelDetails);
+                    channelName.setText(ChatClientCache.getCurrentChannel());
+                    channelStatus.setText(ChatClientCache.getChannelDetails().get("allowedStatus"));
+                    channelDescription.setText(ChatClientCache.getChannelDetails().get("description"));
+                    usersCount.setText(ChatClientCache.getChannelDetails().get("usersCount"));
+                    List<Object> usersOnChannel =Arrays.asList((Object[])XmlRpcAPI.getXmlRpcServer().execute("UserService.usersOnChannel",params));
+                    usersOnChannelList=new ArrayList<>();
+                    for(Object userOnChannel : usersOnChannel)
+                        usersOnChannelList.add((String)userOnChannel);
+                    if (!ChatClientCache.getUsersOnChannel().equals(usersOnChannelList)){
+                        ChatClientCache.setUsersOnChannel(usersOnChannelList);
+                    }
+                    linkList=new ArrayList<>();
+                    for (String user : ChatClientCache.getUsersOnChannel())
+                        linkList.add(new Hyperlink(user));
+                    for (Hyperlink link : linkList)
+                        userFlow.getChildren().add(link);
+                    ListIterator<Hyperlink> hyperlinkIterator=linkList.listIterator();
+                    while (hyperlinkIterator.hasNext()) {
+                        Hyperlink link = (Hyperlink) hyperlinkIterator.next();
+                        link.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override
+                            public void handle(ActionEvent event) {
+                                try {
+                                    List<String> params = new ArrayList<String>();
+                                    String userProfileName = link.getText();
+                                    params.add(userProfileName);
+                                    Map<String, String> userProfile = (Map<String, String>) XmlRpcAPI.getXmlRpcServer().execute("UserService.profile", params);
+                                    ChatClientCache.setUserProfile(userProfile);
+                                    ChatClientCache.setUsername(userProfileName);
+                                    ChatClientCache.setProfileUserStatus(userProfile.get("userStatus"));
+                                    Parent root = FXMLLoader.load(getClass().getResource("/fxml/profile.fxml"));
+                                    Stage stage = new Stage();
+                                    Scene scene = new Scene(root);
+                                    stage.setScene(scene);
+                                    stage.setTitle(link.getText() + "'s profile");
+                                    stage.show();
+                                } catch (XmlRpcException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+
+                    }
+                } catch (XmlRpcException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }));
+        usersUpdater.setCycleCount(Timeline.INDEFINITE);
+        usersUpdater.play();
+
     }
+
+
 }

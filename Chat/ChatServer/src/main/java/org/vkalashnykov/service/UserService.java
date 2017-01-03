@@ -8,14 +8,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.vkalashnykov.configuration.MessageStatuses;
 import org.vkalashnykov.configuration.ServerErrors;
 import org.vkalashnykov.configuration.Statuses;
+import org.vkalashnykov.configuration.UserServerStatus;
 import org.vkalashnykov.model.*;
 import org.vkalashnykov.persistence.ChannelDAO;
 import org.vkalashnykov.persistence.UserDAO;
 import org.vkalashnykov.utils.DateTimeUtil;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.util.*;
@@ -28,6 +31,9 @@ public class UserService implements UserDetailsService {
     @Autowired
     private ChannelDAO channelDAO;
 
+    private Map<String,List<Message>> messagesOnChannel =new TreeMap<>();
+
+    private Channel currentChannel;
 
     private Date unblockTime;
 
@@ -74,12 +80,12 @@ public class UserService implements UserDetailsService {
 
     }
 
-    //    @Cacheable("messages")
+    //    @Cacheable("messagesOnChannel")
 //    public List<Message> getMessages(User user) {
 //        return user.getMessages();
 //    }
 //
-//    @CachePut(value = "messages")
+//    @CachePut(value = "messagesOnChannel")
 //    public void sendMessage(String text, String username) {
 //        User userTo = userDAO.findByUsername(username).orElse(null);
 //        User currentUser = userDAO.findByUsername(currentUserUsername).orElse(null);
@@ -97,12 +103,25 @@ public class UserService implements UserDetailsService {
         return Statuses.SUCCESS.name();
     }
 
-//    public void banUser(String username, long banTime) {
-//        User user = userDAO.findByUsername(username).orElse(null);
-//        user.setRegistrationStatus(RegistrationStatuses.BANNED.name());
-//        user.setLastBanTime(new Date());
-//        unblockTime = new Date(user.getLastBanTime().getTime() + banTime);
-//    }
+    public String banUser(String username, String banTime, String cause) throws XmlRpcException {
+        long banTimeLong=0;
+        try{
+            banTimeLong=Long.parseLong(banTime);
+        } catch(Exception e) {
+            throw new XmlRpcException(ServerErrors.WRONG_NUMBER_FORMAT.getErrorDescrition());
+        }
+        if (banTimeLong<0)
+            throw new XmlRpcException(ServerErrors.WRONG_NUMBER_FORMAT.getErrorDescrition());
+        logout(username);
+        User user = userDAO.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("user " + username + " was not found"));
+        user.setRegistrationStatus(RegistrationStatuses.BANNED.name());
+        user.setBlockDate(DateTimeUtil.getCurrentDate());
+        user.setBlockCause(cause);
+        user.setUnblockDate(DateTimeUtil.plus(banTimeLong*1000*60));
+        userDAO.save(user);
+
+        return Statuses.SUCCESS.name();
+    }
 
     public String createUser(@NotNull String username, @NotNull String password, String name, String lastName, String birthdate) throws XmlRpcException {
         try {
@@ -163,35 +182,37 @@ public class UserService implements UserDetailsService {
         try {
             User user = (User) loadUserByUsername(username);
             if (user != null && new BCryptPasswordEncoder().matches(password, user.getPassword())) {
-                if (OnlineStatuses.ONLINE.getStatusDescription().equals(user.getOnlineStatus()))
+                    if (OnlineStatuses.ONLINE.getStatusDescription().equals(user.getOnlineStatus()))
                     throw new XmlRpcException(403, ServerErrors.USER_ONLINE.getErrorDescrition());
                 if (!RegistrationStatuses.CLOSED.name().equals(user.getRegistrationStatus()) &&
                         !RegistrationStatuses.BANNED.name().equals(user.getRegistrationStatus())){
                     user.setOnlineStatus(OnlineStatuses.ONLINE.getStatusDescription());
-                    userDAO.save(user);
-                    return Statuses.SUCCESS.name();
                 } else if (RegistrationStatuses.CLOSED.name().equals(user.getRegistrationStatus())){
                     throw new UsernameNotFoundException("user " + username + " was not found");
-                } else if (RegistrationStatuses.BANNED.name().equals(user.getRegistrationStatus())){
+                } else if (RegistrationStatuses.BANNED.name().equals(user.getRegistrationStatus())  && DateTimeUtil.getCurrentDate().before(user.getUnblockDate())){
                     return ServerErrors.USER_BANNED.getErrorDescrition();
-                } else {
-                        return Statuses.ERROR.name();
+                } else if(RegistrationStatuses.BANNED.name().equals(user.getRegistrationStatus()) && DateTimeUtil.getCurrentDate().after(user.getUnblockDate())){
+                    user.setRegistrationStatus(RegistrationStatuses.REGISTERED.name());
+                    user.setBlockDate(null);
+                    user.setBlockCause(null);
                 }
+                user.setLoginTime(DateTimeUtil.getCurrentDate());
+                userDAO.save(user);
+                return Statuses.SUCCESS.name();
 
             } else
-                return Statuses.ERROR.name();
+                return ServerErrors.WRONG_CREDENTIALS.getErrorDescrition();
         } catch (UsernameNotFoundException e) {
-            return Statuses.ERROR.name();
+            return ServerErrors.WRONG_CREDENTIALS.getErrorDescrition();
         }
-
     }
 
     public String logout(@NotNull String username) {
         User user = userDAO.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("user " + username + " was not found"));
+        exitChannel(username);
         user.setOnlineStatus(OnlineStatuses.OFFLINE.getStatusDescription());
         user.setLastLoginDate(DateTimeUtil.getCurrentDate());
         userDAO.save(user);
-        exitChannel(username);
         return Statuses.SUCCESS.name();
     }
 
@@ -254,26 +275,41 @@ public class UserService implements UserDetailsService {
 
     public List<String> channelsByStatus(@NotNull  String userStatus){
         List<Channel> channels=channelDAO.findAll();
-        if (!UserRoles.ADMIN.getAuthority().equals(userStatus))
-            channels.removeAll(channels.stream().filter(channel->!userStatus.equals(channel.getAllowedStatus())).collect(Collectors.toList()));
+        List<Channel> filteredChannels=channelDAO.findAll();
+        if (!UserRoles.ADMIN.getAuthority().equals(userStatus) && !UserRoles.MODERATOR.getAuthority().equals(userStatus)){
+            filteredChannels.removeAll(channels.stream().filter(channel -> !userStatus.equals(channel.getAllowedStatus())).collect(Collectors.toList()));
+            if (!filteredChannels.containsAll(channels.stream().
+                    filter(channel -> channel.getAllowedStatus().equals(UserRoles.USER.getAuthority()))
+                    .collect(Collectors.toList())))
+                filteredChannels.addAll(channels.stream()
+                        .filter(channel -> channel.getAllowedStatus().equals(UserRoles.USER.getAuthority()))
+                        .collect(Collectors.toList()));
+        }
         List<String> channelNames=new ArrayList<>();
-        for (Channel channel : channels){
+        for (Channel channel : filteredChannels){
             channelNames.add(channel.getChannelName());
         }
         return channelNames;
     }
 
-    public List<String> enterChannel(@NotNull String username, @NotNull String channelName){
-        User enterredUser = userDAO.findByUsername(username).orElseThrow(() ->new UsernameNotFoundException("user " + username + " was not found"));
+    public Map<String,String> enterChannel(@NotNull String username, @NotNull String channelName) {
+        User enterredUser = userDAO.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("user " + username + " was not found"));
         exitChannel(username);
-        userDAO.save(enterredUser);
-        Channel channel=channelDAO.findByChannelName(channelName).orElse(null);
+        Channel channel = channelDAO.findByChannelName(channelName).orElse(null);
         channel.addUser(enterredUser);
         channelDAO.save(channel);
-        List<String> usersOnChannel=new ArrayList<>();
-        for (User user : channel.getUsers())
-            usersOnChannel.add(user.getUsername());
-        return usersOnChannel;
+        setCurrentChannel(channel);
+        Message message=Message.builder()
+                .postTime(DateTimeUtil.getCurrentDate())
+                .messageText(" entered the "+channelName)
+                .messageStatus(MessageStatuses.SYSTEM.getStatusName())
+                .user(username).build();
+        if (messagesOnChannel.get(channelName)==null){
+            List <Message> messages=new ArrayList<>();
+            messagesOnChannel.put(channelName,messages);
+        }
+        messagesOnChannel.get(channelName).add(message);
+        return channelDetails(channelName);
     }
 
     public Map<String, String> channelDetails(@NotNull String channelName){
@@ -291,10 +327,118 @@ public class UserService implements UserDetailsService {
         for (Channel channel :channels){
             if (channel.getUsers().contains(user)){
                 channel.removeUser(user);
+                Message message=Message.builder()
+                        .postTime(DateTimeUtil.getCurrentDate())
+                        .messageText(" exited the "+channel.getChannelName())
+                        .messageStatus(MessageStatuses.SYSTEM.getStatusName())
+                        .user(username).build();
+                if (messagesOnChannel.get(channel.getChannelName())==null){
+                    List <Message> messages=new ArrayList<>();
+                    messagesOnChannel.put(channel.getChannelName(),messages);
+                }
+                messagesOnChannel.get(channel.getChannelName()).add(message);
                 channelDAO.save(channel);
             }
         }
         return Statuses.SUCCESS.name();
     }
 
+    public List<String> usersOnChannel(@NotNull String channelName){
+        Channel channel =channelDAO.findByChannelName(channelName).orElse(null);
+        if (channel!=null){
+            List<String> usersOnChannel=new ArrayList<>();
+            for (User user : channel.getUsers())
+                usersOnChannel.add(user.getUsername());
+            return usersOnChannel;
+        }
+        return null;
+    }
+
+    public String checkUserServerStatus(@NotNull String username){
+        User user=userDAO.findByUsername(username).orElseThrow(()->new UsernameNotFoundException("user " + username + " was not found"));
+        if ( RegistrationStatuses.BANNED.name().equals(user.getRegistrationStatus()) ){
+            return UserServerStatus.BAN.getUserServerStatus();
+        } else if (RegistrationStatuses.CLOSED.equals((user.getRegistrationStatus()))){
+            return  UserServerStatus.CLOSE.getUserServerStatus();
+        } else {
+            return UserServerStatus.OK.getUserServerStatus();
+        }
+    }
+
+    public String changeStatus(@NotNull String username, String status, String statusChangeCause){
+        User user=userDAO.findByUsername(username).orElseThrow(()->new UsernameNotFoundException("user " + username + " was not found"));
+        exitChannel(username);
+        if (user.getAuthorities().size()==1)
+            user.getAuthorities().add(UserRoles.getRole(status));
+        else if ((user.getAuthorities().contains(UserRoles.VIP) || user.getAuthorities().contains(UserRoles.MODERATOR))
+                && !UserRoles.USER.getAuthority().equals(status)){
+            user.getAuthorities().remove(user.getAuthorities().get(user.getAuthorities().size()-1));
+            user.getAuthorities().add(UserRoles.getRole(status));
+        } else{
+            user.getAuthorities().remove(user.getAuthorities().get(user.getAuthorities().size()-1));
+        }
+        user.setStatusChangeCause(statusChangeCause);
+        userDAO.save(user);
+
+        return Statuses.SUCCESS.name();
+
+    }
+
+    public String getUserStatus(String username){
+        User user=userDAO.findByUsername(username).orElseThrow(()->new UsernameNotFoundException("user " + username + " was not found"));
+        return user.getAuthorities().get(user.getAuthorities().size()-1).getAuthority();
+    }
+
+    public List<String> messagesOnChannel(String channel,String username){
+        User user = userDAO.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("user " + username + " was not found"));
+        List<Message> filteredMessages;
+        if (messagesOnChannel.get(channel)==null)
+            filteredMessages=new ArrayList<>();
+        else
+            filteredMessages= messagesOnChannel.get(channel);
+        long minute=1000*60;
+        filteredMessages.
+                removeAll(filteredMessages.stream().
+                        filter(message -> message.getPostTime().before(DateTimeUtil.minus(user.getLoginTime(),minute)))
+                        .collect(Collectors.toList()));
+        List<String> currentMessages=new ArrayList<>();
+        for (Message message :filteredMessages){
+            if (MessageStatuses.NORMAL.equals(message.getMessageStatus())){
+                String messageText=message.getMessageText()+"\t[ "+DateTimeUtil.convertTimeToString(message.getPostTime())+" ]\n";
+                String messageUser=message.getUser();
+                String currentMessage=messageUser+": "+messageText;
+                currentMessages.add(currentMessage);
+            } else {
+                String messageText=message.getMessageText()+"\t[ "+DateTimeUtil.convertTimeToString(message.getPostTime())+" ]\n";
+                String messageUser=message.getUser();
+                String currentMessage=messageUser+" "+messageText;
+                currentMessages.add(currentMessage);
+            }
+
+        }
+        return currentMessages;
+    }
+
+
+    public String postMessage(String username, String channel, String messageText){
+        Message message=Message.builder()
+                .postTime(DateTimeUtil.getCurrentDate())
+                .messageText(messageText)
+                .messageStatus(MessageStatuses.NORMAL.getStatusName())
+                .user(username).build();
+        if (messagesOnChannel.get(channel)==null){
+            List <Message> messages=new ArrayList<>();
+            messagesOnChannel.put(channel,messages);
+        }
+        messagesOnChannel.get(channel).add(message);
+        return Statuses.SUCCESS.name();
+    }
+
+    public void setCurrentChannel(Channel currentChannel) {
+        this.currentChannel = currentChannel;
+    }
+
+    public Channel getCurrentChannel() {
+        return currentChannel;
+    }
 }

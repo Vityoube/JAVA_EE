@@ -11,6 +11,8 @@ import java.util.Date;
 public class DateTimeUtil {
     private static SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
+    private static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:MM:ss dd.MM.yyyy");
+
     public static String convertDatetoString(Date date){
         if (date!=null){
             String formattedDateString=format.format(date);
@@ -41,5 +43,27 @@ public class DateTimeUtil {
 
     public static boolean isEmptyStringDate(String stringDate){
         return stringDate.isEmpty() ? true :  false;
+    }
+
+    public static Date plus(long time){
+        Calendar calendar = Calendar.getInstance();
+        long newTime=getCurrentDate().getTime()+time;
+        calendar.setTime(new Date(newTime));
+        return calendar.getTime();
+    }
+
+    public static Date minus(Date time,long minus){
+        Calendar calendar = Calendar.getInstance();
+        long newTime=time.getTime()-minus;
+        calendar.setTime(new Date(newTime));
+        return calendar.getTime();
+    }
+
+    public static  String convertTimeToString(Date time){
+        if (time!=null){
+            String formattedDateString=timeFormat.format(time);
+            return formattedDateString;
+        }
+        return null;
     }
 }

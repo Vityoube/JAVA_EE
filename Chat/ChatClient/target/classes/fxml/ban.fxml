@@ -7,16 +7,15 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="341.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="362.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.vkalashnykov.controller.BanUserController">
    <children>
-      <TextArea layoutX="55.0" layoutY="164.0" prefHeight="77.0" prefWidth="491.0" />
-      <TextField layoutX="310.0" layoutY="75.0" prefHeight="30.0" prefWidth="229.0">
+      <TextArea fx:id="banCause" layoutX="55.0" layoutY="164.0" prefHeight="77.0" prefWidth="491.0" />
+      <TextField fx:id="banTime" layoutX="310.0" layoutY="75.0" prefHeight="30.0" prefWidth="229.0">
          <font>
             <Font size="14.0" />
          </font>
       </TextField>
-      <Label layoutX="184.0" layoutY="80.0" text="Ban time (minutes)">
+      <Label layoutX="170.0" layoutY="81.0" text="Ban time (minutes)">
          <font>
             <Font size="14.0" />
          </font>
@@ -26,7 +25,7 @@
             <Font size="14.0" />
          </font>
       </Label>
-      <Button layoutX="237.0" layoutY="288.0" mnemonicParsing="false" text="Ban user">
+      <Button layoutX="237.0" layoutY="288.0" mnemonicParsing="false" onAction="#onBanUser" text="Ban user">
          <font>
             <Font size="14.0" />
          </font>
@@ -36,17 +35,18 @@
             <Font size="16.0" />
          </font>
       </Label>
-      <Label layoutX="292.0" layoutY="14.0" prefHeight="25.0" prefWidth="243.0" text="username">
+      <Label fx:id="userToBan" layoutX="292.0" layoutY="12.0" prefHeight="25.0" prefWidth="243.0" text="username">
          <font>
             <Font size="16.0" />
          </font>
       </Label>
-      <Button layoutX="332.0" layoutY="288.0" mnemonicParsing="false" text="Cancel">
+      <Button fx:id="cancelButton" layoutX="332.0" layoutY="288.0" mnemonicParsing="false" onAction="#onCancel" text="Cancel">
          <font>
             <Font size="14.0" />
          </font>
       </Button>
-      <Label disable="true" layoutX="310.0" layoutY="113.0" prefHeight="20.0" prefWidth="229.0" text="timeError" />
-      <Label disable="true" layoutX="55.0" layoutY="250.0" prefHeight="20.0" prefWidth="491.0" text="causeError" />
+      <Label fx:id="timeError" disable="true" layoutX="310.0" layoutY="113.0" prefHeight="20.0" prefWidth="229.0" text="timeError" />
+      <Label fx:id="causeError" disable="true" layoutX="55.0" layoutY="250.0" prefHeight="20.0" prefWidth="491.0" text="causeError" />
+      <Label fx:id="serverError" alignment="CENTER" disable="true" layoutX="61.0" layoutY="328.0" prefHeight="20.0" prefWidth="491.0" text="causeError" />
    </children>
 </AnchorPane>

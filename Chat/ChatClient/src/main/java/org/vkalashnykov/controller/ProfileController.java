@@ -44,9 +44,9 @@ public class ProfileController implements Initializable{
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        showPublicDetails();
-        showCurrentUserDetails();
-        showNotCurrentProfile();
+            showPublicDetails();
+            showCurrentUserDetails();
+            showNotCurrentProfile();
     }
 
 
@@ -195,6 +195,8 @@ public class ProfileController implements Initializable{
             if (ChatClientCache.getUserProfile().get("blockDate")!=null){
                 profileLastActionDate.setText(ChatClientCache.getUserProfile().get("blockDate"));
                 lastActionLabel.setText(LastActions.BLOCK.getActionName());
+                closeButton.setDisable(true);
+                closeButton.setVisible(false);
             }
 
             else if (ChatClientCache.getUserProfile().get("closeDate")!=null){
@@ -210,12 +212,15 @@ public class ProfileController implements Initializable{
                 profileLastActionDate.setVisible(false);
             }
             if (ChatClientCache.getUserProfile().get("lastLoginDate")!=null &&
-                    profileOnlineStatus.getText().equals("Online")){
+                    !profileOnlineStatus.getText().equals("Online")){
                 lastLoginLabel.setVisible(true);
                 profileLastLoginDate.setVisible(true);
                 profileLastLoginDate.setText(ChatClientCache.getUserProfile().get("lastLoginDate"));
+            } else {
+                lastLoginLabel.setVisible(false);
+                profileLastLoginDate.setVisible(false);
             }
-            if (ChatClientCache.isAdmin() || ChatClientCache.isModerator()) {
+            if (ChatClientCache.isAdmin() || ChatClientCache.isModerator() && !ChatClientCache.isProfileAdmin(ChatClientCache.getUsername())) {
                 banButton.setVisible(true);
                 banButton.setDisable(false);
                 changeStatus.setDisable(false);
@@ -226,7 +231,33 @@ public class ProfileController implements Initializable{
                 changeStatus.setDisable(true);
                 changeStatus.setVisible(false);
             }
+        } else {
+            profileRegistrationStatus.setVisible(false);
+            profileOnlineStatus.setVisible(false);
+            lastActionLabel.setVisible(false);
+            profileLastActionDate.setVisible(false);
+            banButton.setVisible(false);
+            banButton.setDisable(true);
+            changeStatus.setVisible(false);
+            changeStatus.setDisable(true);
         }
     }
 
+    public void onBanUser(ActionEvent event) throws IOException {
+        Parent root=FXMLLoader.load(getClass().getResource("/fxml/ban.fxml"));
+        Stage stage= (Stage)((Node)event.getSource()).getScene().getWindow();
+        Scene scene=new Scene(root);
+        stage.setScene(scene);
+        stage.setTitle("ban user "+ChatClientCache.getUsername());
+        stage.show();
+    }
+
+    public void onChangeStatus(ActionEvent event) throws IOException {
+        Parent root=FXMLLoader.load(getClass().getResource("/fxml/change_status.fxml"));
+        Stage stage= (Stage)((Node)event.getSource()).getScene().getWindow();
+        Scene scene=new Scene(root);
+        stage.setScene(scene);
+        stage.setTitle("ban user "+ChatClientCache.getUsername());
+        stage.show();
+    }
 }

@@ -6,7 +6,7 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
-
+<?import javafx.scene.text.TextFlow?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.vkalashnykov.controller.ChannelController">
    <children>
@@ -16,23 +16,23 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <Label layoutX="71.0" layoutY="38.0" text="channelName" fx:id="channelName">
+                        <Label fx:id="channelName" layoutX="71.0" layoutY="38.0" text="channelName">
                            <font>
                               <Font size="16.0" />
                            </font>
                         </Label>
-                        <Label layoutX="72.0" layoutY="108.0" text="channelStatus" fx:id="channelStatus">
+                        <Label fx:id="channelStatus" layoutX="72.0" layoutY="108.0" text="channelStatus">
                            <font>
                               <Font size="16.0" />
                            </font>
                         </Label>
-                        <TextArea editable="false" layoutX="60.0" layoutY="166.0" prefHeight="59.0" prefWidth="503.0" wrapText="true" fx:id="channelDescription"/>
+                        <TextArea fx:id="channelDescription" editable="false" layoutX="60.0" layoutY="166.0" prefHeight="59.0" prefWidth="503.0" wrapText="true" />
                         <Label layoutX="72.0" layoutY="270.0" text="Users on channel:">
                            <font>
                               <Font size="16.0" />
                            </font>
                         </Label>
-                        <Label layoutX="299.0" layoutY="270.0" text="usersCount" fx:id="usersCount">
+                        <Label fx:id="usersCount" layoutX="299.0" layoutY="270.0" text="usersCount">
                            <font>
                               <Font size="16.0" />
                            </font>
@@ -43,7 +43,10 @@
           </TitledPane>
           <TitledPane animated="false" text="Users">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" fx:id="usersPane"/>
+              <AnchorPane fx:id="usersPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TextFlow fx:id="userFlow" layoutX="-1.0" prefHeight="350.0" prefWidth="600.0" />
+                     </children></AnchorPane>
             </content>
           </TitledPane>
         </panes>

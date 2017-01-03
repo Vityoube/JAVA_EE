@@ -10,7 +10,9 @@ public enum ServerErrors {
     PASSWORDS_DO_NOT_MATCH("Passwords must match"),
     WRONG_PASSWORD("Wrong password"),
     USER_BANNED("Your account was blocked. Try login later."),
-    USER_ONLINE("Looks like user with username is already logined");
+    USER_ONLINE("Looks like user with username is already logined"),
+    WRONG_NUMBER_FORMAT("The input must be a positive number"),
+    WRONG_CREDENTIALS("Wrong username or password");
 
 
     private String errorDescrition;

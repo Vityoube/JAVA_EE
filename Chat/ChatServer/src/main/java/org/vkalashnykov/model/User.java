@@ -52,7 +52,11 @@ public class User implements UserDetails{
     private String registrationStatus;
     private Date closeDate;
     private Date blockDate;
+    private String blockCause;
     private String onlineStatus;
+    private Date unblockDate;
+    private String statusChangeCause;
+    private Date loginTime;
 
 
 //    public Message addMessage(Message message){

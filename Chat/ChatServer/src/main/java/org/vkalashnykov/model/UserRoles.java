@@ -20,4 +20,15 @@ public enum UserRoles implements GrantedAuthority{
     }
 
 
+    public static UserRoles getRole(String rolename){
+        if (ADMIN.getAuthority().equals(rolename))
+            return ADMIN;
+        else if (USER.getAuthority().equals(rolename))
+            return USER;
+        else if (VIP.getAuthority().equals(rolename))
+            return VIP;
+        else
+            return MODERATOR;
+    }
+
 }

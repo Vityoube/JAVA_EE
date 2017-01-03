@@ -54,9 +54,9 @@
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <Hyperlink fx:id="changeStatus" layoutX="441.0" layoutY="112.0" text="Change status" />
+                        <Hyperlink fx:id="changeStatus" layoutX="441.0" layoutY="112.0" text="Change status" onAction="#onChangeStatus"/>
                         <Button fx:id="closeButton" layoutX="438.0" layoutY="283.0" mnemonicParsing="false" onAction="#onCloseProfile" text="Close profile" />
-                        <Button fx:id="banButton" layoutX="299.0" layoutY="285.0" mnemonicParsing="false" text="Ban user" />
+                        <Button fx:id="banButton" layoutX="299.0" layoutY="285.0" mnemonicParsing="false" text="Ban user" onAction="#onBanUser"/>
                         <Label fx:id="profileUserStatus" layoutX="214.0" layoutY="113.0" prefHeight="18.0" prefWidth="145.0" text="userStatus">
                            <font>
                               <Font size="14.0" />

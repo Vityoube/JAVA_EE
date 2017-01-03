@@ -30,15 +30,15 @@
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="390.0" prefWidth="321.0">
                <children>
-                  <Label fx:id="channel" alignment="CENTER" layoutX="135.0" layoutY="1.0" prefHeight="27.0" prefWidth="110.0" text="Channel">
+                  <Label fx:id="channel" alignment="CENTER" layoutX="135.0" layoutY="1.0" prefHeight="27.0" prefWidth="110.0" text="Channel" visible="false">
                      <font>
                         <Font size="16.0" />
                      </font>
                   </Label>
-                  <TextArea layoutX="11.0" layoutY="386.0" prefHeight="50.0" prefWidth="338.0" promptText="Write the message ..." wrapText="true" />
-                  <Button layoutX="352.0" layoutY="400.0" mnemonicParsing="false" text="Send" />
-                  <TextArea blendMode="COLOR_DODGE" editable="false" layoutX="4.0" layoutY="28.0" prefHeight="353.0" prefWidth="398.0" wrapText="true" />
-                  <Hyperlink alignment="CENTER" layoutX="272.0" layoutY="3.0" prefHeight="23.0" prefWidth="125.0" text="Channel details" onAction="#channelDetails"/>
+                  <TextArea fx:id="messageArea" layoutX="11.0" layoutY="386.0" prefHeight="50.0" prefWidth="338.0" promptText="Write the message ..." wrapText="true" editable="false"/>
+                  <Button fx:id="sendButton" layoutX="352.0" layoutY="400.0" mnemonicParsing="false" text="Send" disable="true" onAction="#onSendMessage"/>
+                  <TextArea fx:id="messagesWindow" blendMode="SRC_OVER" editable="false" layoutX="4.0" layoutY="28.0" prefHeight="353.0" prefWidth="398.0" wrapText="true" />
+                  <Hyperlink fx:id="channelDetailsHyperlink" alignment="CENTER" layoutX="272.0" layoutY="3.0" prefHeight="23.0" prefWidth="125.0" text="Channel details" onAction="#channelDetails" visible="false" disable="true"/>
                </children>
             </AnchorPane>
         </items>

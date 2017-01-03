@@ -12,7 +12,9 @@ public enum ErrorCodes {
     PASSWORD_TOO_LONG("Password must be from 8 to 20 symbols"),
     PASSWORDS_DO_NOT_MATCH("Passwords must match"),
     SERVER_ERROR("Server error: error code {0} {1}"),
-    WRONG_PASSWORD("Wrong password");
+    WRONG_PASSWORD("Wrong password"),
+    WRONG_NUMBER_FORMAT("The input must be a positive number"),
+    EMPTY_VALUE("Required field");
 
 
 

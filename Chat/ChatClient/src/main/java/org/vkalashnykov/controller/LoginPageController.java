@@ -3,6 +3,7 @@ package org.vkalashnykov.controller;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -10,6 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.apache.xmlrpc.XmlRpcException;
@@ -20,6 +22,8 @@ import java.net.URL;
 import java.util.*;
 
 public class LoginPageController implements Initializable {
+    private double xOffset=0;
+    private double yOffset=0;
 
     @FXML
     private Button loginButton;
@@ -97,14 +101,29 @@ public class LoginPageController implements Initializable {
                         }
                         ChatClientCache.setChannels(channelsList);
                         root=FXMLLoader.load(getClass().getResource("/fxml/start.fxml"));
+
                         Scene scene=new Scene(root);
                         stage= (Stage)((Node)event.getSource()).getScene().getWindow();
+                        root.setOnMousePressed(new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent event) {
+                                xOffset=event.getSceneX();
+                                yOffset=event.getSceneY();
+                            }
+                        });
+                        root.setOnMouseDragged(new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent event) {
+                                stage.setX(event.getScreenX()-xOffset);
+                                stage.setY(event.getScreenY()-yOffset);
+                            }
+                        });
                         stage.setTitle("Super Chat");
                         stage.setScene(scene);
                         stage.show();
                     }
                     else{
-                        throw new XmlRpcException(404,"Bad credentials");
+                        throw new XmlRpcException(404,result);
                     }
 
                 } catch (XmlRpcException e) {
